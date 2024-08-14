@@ -60,7 +60,7 @@ local function load_tasks_from_file(file_path)
 end
 
 local function init_tasks()
-  for _, file_path in ipairs(vim.api.nvim_get_runtime_file("lua/tasks/*.lua", true)) do
+  for _, file_path in ipairs(vim.api.nvim_get_runtime_file("lua/tasks/**/*.lua", true)) do
     local is_success = load_tasks_from_file(file_path)
     if not is_success then
       vim.print("Can't load file from " .. file_path, vim.log.levels.ERROR)
@@ -87,7 +87,7 @@ init_tasks()
 
 
 vim.api.nvim_create_autocmd("BufLeave", {
-  pattern = { vim.fn.stdpath("config") .. "/lua/tasks/*.lua" },
+  pattern = { vim.fn.stdpath("config") .. "/lua/tasks/**/*.lua" },
   group = vim.api.nvim_create_augroup("TasksReloader", { clear = true }),
   callback = function(data)
     clear_tasks_loaded_from_file(data.match)

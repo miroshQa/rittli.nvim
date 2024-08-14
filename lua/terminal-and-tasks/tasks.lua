@@ -113,6 +113,10 @@ vim.api.nvim_create_autocmd("BufLeave", {
   callback = function(data)
     clear_tasks_loaded_from_file(data.match)
     local is_success = load_tasks_from_file(data.match)
+    if config.disable_resource_messages then
+      return
+    end
+
     if not is_success then
       vim.print(string.format("Unable to reload tasks. FILE: %s", data.match))
     else

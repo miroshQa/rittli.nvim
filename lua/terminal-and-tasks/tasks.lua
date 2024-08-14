@@ -1,4 +1,7 @@
 require("terminal-and-tasks.terminal_tweaks")
+local config = require("terminal-and-tasks.config").config
+
+-- to fina all files in local directory
 
 local M = {}
 
@@ -18,7 +21,8 @@ M.all_tasks = {}
 --   }
 -- }
 M.last_runned_task = nil
-
+local global_tasks_pattern = string.format("%s/lua/%s/**/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks)
+local local_tasks_pattern = string.format("%s/%s/**/*.lua", vim.uv.cwd(), config.folder_name_with_tasks)
 -- We have to launch this function before load tasks frome file again (before resoruce)
 local function clear_tasks_loaded_from_file(file_path)
   for key, value in pairs(M.all_tasks) do
@@ -59,14 +63,15 @@ local function load_tasks_from_file(file_path)
   return true
 end
 
-local function init_tasks()
-  for _, file_path in ipairs(vim.api.nvim_get_runtime_file("lua/tasks/**/*.lua", true)) do
+local function load_tasks_from_files(files)
+  for _, file_path in ipairs(files) do
     local is_success = load_tasks_from_file(file_path)
     if not is_success then
-      vim.print("Can't load file from " .. file_path, vim.log.levels.ERROR)
+      vim.print("Can't load file from " .. file_path)
     end
   end
 end
+
 
 function M.collect_tasks()
   local tasks = {}
@@ -83,8 +88,13 @@ function M.run_task(task)
   vim.fn.chansend(job_id, { task.cmd, "" })
 end
 
-init_tasks()
 
+
+
+vim.print(vim.fn.glob(global_tasks_pattern, false, true))
+vim.print(vim.fn.glob(local_tasks_pattern, false, true))
+load_tasks_from_files(vim.fn.glob(global_tasks_pattern, false, true))
+load_tasks_from_files(vim.fn.glob(local_tasks_pattern, false, true))
 
 vim.api.nvim_create_autocmd("BufLeave", {
   pattern = { vim.fn.stdpath("config") .. "/lua/tasks/**/*.lua" },
@@ -99,5 +109,6 @@ vim.api.nvim_create_autocmd("BufLeave", {
     end
   end
 })
+
 
 return M

@@ -84,6 +84,7 @@ function M.run_task(task)
   vim.cmd("tabnew")
   local job_id = vim.fn.termopen(vim.o.shell, { detach = true })
   vim.fn.chansend(job_id, { task.cmd, "" })
+  vim.api.nvim_buf_set_name(0, string.format("TerminalTask: %s", task.name))
 end
 
 

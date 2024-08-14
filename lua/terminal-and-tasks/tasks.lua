@@ -21,8 +21,6 @@ M.all_tasks = {}
 --   }
 -- }
 M.last_runned_task = nil
-local global_tasks_pattern = string.format("%s/lua/%s/**/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks)
-local local_tasks_pattern = string.format("%s/%s/**/*.lua", vim.uv.cwd(), config.folder_name_with_tasks)
 -- We have to launch this function before load tasks frome file again (before resoruce)
 local function clear_tasks_loaded_from_file(file_path)
   for key, value in pairs(M.all_tasks) do
@@ -91,13 +89,26 @@ end
 
 
 
-vim.print(vim.fn.glob(global_tasks_pattern, false, true))
-vim.print(vim.fn.glob(local_tasks_pattern, false, true))
+-- vim.print(vim.fn.glob(global_tasks_pattern, false, true)) 
+-- vim.print(vim.fn.glob(local_tasks_pattern, false, true))
+local global_tasks_pattern = string.format("%s/lua/%s/**/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks)
+local local_tasks_pattern = string.format("%s/%s/**/*.lua", vim.uv.cwd(), config.folder_name_with_tasks)
 load_tasks_from_files(vim.fn.glob(global_tasks_pattern, false, true))
 load_tasks_from_files(vim.fn.glob(local_tasks_pattern, false, true))
 
+
+
+-- see :help autocmd-pattern
+-- We need to dublicate code unfortunately
+local patterns = {
+  string.format("%s/lua/%s/*/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks),
+  string.format("%s/lua/%s/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks),
+  string.format("%s/%s/*.lua", vim.uv.cwd(), config.folder_name_with_tasks),
+  string.format("%s/%s/*/*.lua", vim.uv.cwd(), config.folder_name_with_tasks),
+}
+
 vim.api.nvim_create_autocmd("BufLeave", {
-  pattern = { vim.fn.stdpath("config") .. "/lua/tasks/**/*.lua" },
+  pattern = patterns,
   group = vim.api.nvim_create_augroup("TasksReloader", { clear = true }),
   callback = function(data)
     clear_tasks_loaded_from_file(data.match)

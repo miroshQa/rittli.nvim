@@ -9,6 +9,26 @@ local actions = require "telescope.actions"
 local action_state = require "telescope.actions.state"
 
 local tasks = require "terminal-and-tasks.tasks"
+local config = require("terminal-and-tasks.config").config
+
+local custom_actions = {}
+custom_actions.reuse_as_template = function(prompt_bufnr)
+  local entry = action_state.get_selected_entry()
+  local path_to_folder_with_tasks = string.format("%s/%s/", vim.uv.cwd(), config.folder_name_with_tasks)
+  if vim.fn.isdirectory(path_to_folder_with_tasks) == 0 then
+    vim.fn.mkdir(path_to_folder_with_tasks)
+  end
+
+  local copy_to = path_to_folder_with_tasks .. vim.fs.basename(entry.filename)
+  if vim.fn.filereadable(copy_to) then
+    print("ABORT: This template already exists!")
+    return
+  end
+
+  vim.uv.fs_copyfile(entry.filename, copy_to)
+  actions.close(prompt_bufnr)
+  vim.cmd(string.format("edit %s", copy_to))
+end
 
 M.tasks_picker = function(opts)
   opts = opts or {}
@@ -35,7 +55,10 @@ M.tasks_picker = function(opts)
         tasks.run_task(selection.value.task)
         vim.fn.feedkeys("i", "n")
       end)
+
+      map("i", "<C-r>", custom_actions.reuse_as_template)
       return true
+
     end,
   }):find()
 end

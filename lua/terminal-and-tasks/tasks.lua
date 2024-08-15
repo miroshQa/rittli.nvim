@@ -9,14 +9,13 @@ M.loaded_tasks = {}
 -- THIS TABLE CONTAINS TASK CONTAINERS AS BELOW
 -- M.loaded_tasks = {
 --   [name] = {  -- this 'name' key duplucate the task name
---     task_source_file_path = nil,
---     task_begin_line_number = nil,
---     task_begin_line_number = nil,
+--     task_source_file_path = string,
+--     task_begin_line_number = number,
 --     task = {
---       name = nil,
---       env = nil,
---       cmd = nil,
---       cwd = nil
+--       name = string,
+--       env = {},
+--       cmd = string,
+--       cwd = string,
 --     }
 --   }
 -- }
@@ -85,7 +84,7 @@ end
 function M.run_task(task)
   M.last_runned_task = task
   vim.cmd("tabnew")
-  local job_id = vim.fn.termopen(vim.o.shell, { detach = true })
+  local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = task.env})
   vim.fn.chansend(job_id, { task.cmd, "" })
   vim.api.nvim_buf_set_name(0, string.format("TerminalTask: %s", task.name))
 end

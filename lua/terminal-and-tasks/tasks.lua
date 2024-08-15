@@ -66,7 +66,8 @@ local function load_tasks_from_files(files)
   for _, file_path in ipairs(files) do
     local is_success = load_tasks_from_file(file_path)
     if not is_success then
-      vim.print("Can't load file from " .. file_path)
+      -- multiline notification will require to press enter to continue
+      vim.notify("Can't load file from " .. file_path, vim.log.levels.ERROR)
     end
   end
 end
@@ -98,9 +99,9 @@ function M.update_tasks_from_file(file_path)
   end
 
   if not is_success then
-    vim.print(string.format("Unable to reload tasks. FILE: %s", file_path))
+    vim.notify(string.format("Unable to reload tasks. FILE: %s", file_path), vim.log.levels.ERROR)
   else
-    vim.print(string.format("Reload success. FILE: %s", file_path))
+    vim.notify(string.format("Reload success. FILE: %s", file_path), vim.log.levels.INFO)
   end
 end
 

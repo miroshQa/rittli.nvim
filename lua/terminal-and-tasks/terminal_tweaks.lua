@@ -1,5 +1,5 @@
 require("terminal-and-tasks.tabs_tweaks")
-
+local config = require("terminal-and-tasks.config").config
 
 local M = {}
 
@@ -54,13 +54,16 @@ vim.api.nvim_create_autocmd("TermOpen", {
   callback = function()
     vim.api.nvim_command("set ft=terminal | startinsert")
     vim.api.nvim_command("setlocal nonumber norelativenumber signcolumn=no")
-    register_terminal_enter()
+    if config.should_register_terminal_enter() then
+      register_terminal_enter()
+    end
   end,
 })
 
 vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
+  group = vim.api.nvim_create_augroup("TerminalEnterRegistrator", {clear = true}),
   callback = function()
-    if vim.bo.filetype == "terminal" then
+    if vim.bo.filetype == "terminal" and config.should_register_terminal_enter() then
       vim.api.nvim_command("startinsert")
       register_terminal_enter()
     end

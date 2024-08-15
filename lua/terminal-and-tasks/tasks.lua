@@ -5,9 +5,9 @@ local config = require("terminal-and-tasks.config").config
 
 local M = {}
 
-M.all_tasks = {}
+M.loaded_tasks = {}
 -- THIS TABLE CONTAINS TASK CONTAINERS AS BELOW
--- M.all_tasks = {
+-- M.loaded_tasks = {
 --   [name] = {  -- this 'name' key duplucate the task name
 --     task_source_file_path = nil,
 --     task_begin_line_number = nil,
@@ -21,11 +21,13 @@ M.all_tasks = {}
 --   }
 -- }
 M.last_runned_task = nil
+local files_with_tasks_need_to_be_reloaded = {}
+
 -- We have to launch this function before load tasks frome file again (before resoruce)
 local function clear_tasks_loaded_from_file(file_path)
-  for key, value in pairs(M.all_tasks) do
+  for key, value in pairs(M.loaded_tasks) do
     if value.task_source_file_path == file_path then
-      M.all_tasks[key] = nil
+      M.loaded_tasks[key] = nil
     end
   end
 end
@@ -56,7 +58,7 @@ local function load_tasks_from_file(file_path)
       task = task,
       task_begin_line_number = find_task_begin_line_number_by_name(file_with_tasks, task.name)
     }
-    M.all_tasks[task.name] = task_container
+    M.loaded_tasks[task.name] = task_container
   end
   return true
 end
@@ -73,7 +75,8 @@ end
 
 function M.collect_tasks()
   local tasks = {}
-  for _, value in pairs(M.all_tasks) do
+  M.update_all_tasks()
+  for _, value in pairs(M.loaded_tasks) do
     table.insert(tasks, value)
   end
   return tasks
@@ -88,6 +91,26 @@ function M.run_task(task)
 end
 
 
+function M.update_tasks_from_file(file_path)
+  clear_tasks_loaded_from_file(file_path)
+  local is_success = load_tasks_from_file(file_path)
+  if config.disable_resource_messages then
+    return
+  end
+
+  if not is_success then
+    vim.print(string.format("Unable to reload tasks. FILE: %s", file_path))
+  else
+    vim.print(string.format("Reload success. FILE: %s", file_path))
+  end
+end
+
+function M.update_all_tasks()
+  for file_path, _ in pairs(files_with_tasks_need_to_be_reloaded) do
+    M.update_tasks_from_file(file_path)
+    files_with_tasks_need_to_be_reloaded[file_path] = nil
+  end
+end
 
 
 -- vim.print(vim.fn.glob(global_tasks_pattern, false, true)) 
@@ -108,21 +131,12 @@ local patterns = {
   string.format("%s/%s/*/*.lua", vim.uv.cwd(), config.folder_name_with_tasks),
 }
 
-vim.api.nvim_create_autocmd("BufLeave", {
+vim.api.nvim_create_autocmd("BufEnter", {
   pattern = patterns,
-  group = vim.api.nvim_create_augroup("TasksReloader", { clear = true }),
+  group = vim.api.nvim_create_augroup("TasksReloaderRegistrator", { clear = true }),
   callback = function(data)
-    clear_tasks_loaded_from_file(data.match)
-    local is_success = load_tasks_from_file(data.match)
-    if config.disable_resource_messages then
-      return
-    end
-
-    if not is_success then
-      vim.print(string.format("Unable to reload tasks. FILE: %s", data.match))
-    else
-      vim.print(string.format("Reload success. FILE: %s", data.match))
-    end
+    local file_path = data.match
+    files_with_tasks_need_to_be_reloaded[file_path] = true
   end
 })
 

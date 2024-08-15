@@ -21,7 +21,7 @@ custom_actions.reuse_as_template = function(prompt_bufnr)
 
   local copy_to = path_to_folder_with_tasks .. vim.fs.basename(entry.filename)
   if vim.fn.filereadable(copy_to) == 1 then
-    print("ABORT: This template already exists!")
+    vim.notify("ABORT: This template already exists!", vim.log.levels.ERROR)
     return
   end
 

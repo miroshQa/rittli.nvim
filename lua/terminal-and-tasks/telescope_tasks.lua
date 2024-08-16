@@ -31,7 +31,7 @@ custom_actions.reuse_as_template = function(prompt_bufnr)
   vim.cmd(string.format("edit %s", copy_to))
 end
 
-local task_name_max_len = 15
+local task_name_max_len = 20
 local function make_display(entry)
   if not config.show_file_path_in_telescope_picker then
     return entry.task.name

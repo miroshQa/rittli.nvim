@@ -31,6 +31,12 @@ local function clear_tasks_loaded_from_file(file_path)
   end
 end
 
+local function clear_tasks_loaded_from_files(files)
+  for _, file_path in ipairs(files) do
+    clear_tasks_loaded_from_file(file_path)
+  end
+end
+
 local function find_task_begin_line_number_by_name(file_with_tasks, name)
   file_with_tasks:seek("set", 0)
   local lines = file_with_tasks:lines()
@@ -113,14 +119,13 @@ function M.update_all_tasks()
 end
 
 
--- vim.print(vim.fn.glob(global_tasks_pattern, false, true)) 
--- vim.print(vim.fn.glob(local_tasks_pattern, false, true))
 local global_tasks_pattern = string.format("%s/lua/%s/**/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks)
 local local_tasks_pattern = string.format("%s/%s/**/*.lua", vim.uv.cwd(), config.folder_name_with_tasks)
-load_tasks_from_files(vim.fn.glob(global_tasks_pattern, false, true))
-load_tasks_from_files(vim.fn.glob(local_tasks_pattern, false, true))
 
-
+local function on_startup()
+  load_tasks_from_files(vim.fn.glob(global_tasks_pattern, false, true))
+  load_tasks_from_files(vim.fn.glob(local_tasks_pattern, false, true))
+end
 
 -- see :help autocmd-pattern
 -- We need to dublicate code unfortunately
@@ -131,6 +136,25 @@ local patterns = {
   string.format("%s/%s/*/*.lua", vim.uv.cwd(), config.folder_name_with_tasks),
 }
 
+vim.api.nvim_create_autocmd("DirChanged", {
+  pattern = {"window", "global"}, -- window pattern is required for NeoTree
+  group = vim.api.nvim_create_augroup("LocalTasksUpdater", {clear = true}),
+  callback = function()
+    local new_cwd = vim.uv.cwd()
+    local files = vim.fn.glob(local_tasks_pattern, false, true)
+    clear_tasks_loaded_from_files(files)
+    local_tasks_pattern = string.format("%s/%s/**/*.lua", new_cwd, config.folder_name_with_tasks)
+    load_tasks_from_files(vim.fn.glob(local_tasks_pattern, false, true))
+    patterns[3] = string.format("%s/%s/*.lua", new_cwd, config.folder_name_with_tasks)
+    patterns[4] = string.format("%s/%s/*/*.lua", new_cwd, config.folder_name_with_tasks)
+
+    if not config.disable_local_tasks_updater_messages then
+      ---@diagnostic disable-next-line: param-type-mismatch
+      vim.notify(string.format("Local tasks reloaded: New cwd: %s", vim.fn.fnamemodify(new_cwd, ":~")), vim.log.levels.INFO)
+    end
+  end
+})
+
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = patterns,
   group = vim.api.nvim_create_augroup("TasksReloaderRegistrator", { clear = true }),
@@ -140,5 +164,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
   end
 })
 
+on_startup()
 
 return M

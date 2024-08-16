@@ -10,6 +10,7 @@ local action_state = require "telescope.actions.state"
 
 local tasks = require "terminal-and-tasks.tasks"
 local config = require("terminal-and-tasks.config").config
+local str_custom = require("terminal-and-tasks.string_custom_functions")
 
 local custom_actions = {}
 custom_actions.reuse_as_template = function(prompt_bufnr)
@@ -30,13 +31,17 @@ custom_actions.reuse_as_template = function(prompt_bufnr)
   vim.cmd(string.format("edit %s", copy_to))
 end
 
+local task_name_max_len = 15
 local function make_display(entry)
   if not config.show_file_path_in_telescope_picker then
     return entry.task.name
   end
 
+  local task_name = str_custom.shrink_line(entry.task.name, task_name_max_len)
+  task_name = str_custom.justify_str_left(task_name, task_name_max_len + 5, " ")
   local file_path = vim.fn.fnamemodify(entry.task_source_file_path, ":~")
-  return entry.task.name .. string.format("        [%s]", file_path)
+
+  return task_name .. string.format("[%s]", file_path)
 end
 
 

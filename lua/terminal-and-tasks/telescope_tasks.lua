@@ -30,6 +30,16 @@ custom_actions.reuse_as_template = function(prompt_bufnr)
   vim.cmd(string.format("edit %s", copy_to))
 end
 
+local function make_display(entry)
+  if not config.show_file_path_in_telescope_picker then
+    return entry.task.name
+  end
+
+  local file_path = vim.fn.fnamemodify(entry.task_source_file_path, ":~")
+  return entry.task.name .. string.format("        [%s]", file_path)
+end
+
+
 M.tasks_picker = function(opts)
   opts = opts or {}
   pickers.new(opts, {
@@ -39,7 +49,7 @@ M.tasks_picker = function(opts)
       entry_maker = function(entry)
         return {
           value = entry,
-          display = entry.task.name,
+          display = make_display(entry),
           ordinal = entry.task.name,
           filename = entry.task_source_file_path,
           lnum = entry.task_begin_line_number,

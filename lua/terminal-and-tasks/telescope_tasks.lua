@@ -31,7 +31,16 @@ custom_actions.reuse_as_template = function(prompt_bufnr)
   vim.cmd(string.format("edit %s", copy_to))
 end
 
-local task_name_max_len = 20
+custom_actions.launch_the_picked_task = function(prompt_bufnr)
+  local selection = action_state.get_selected_entry()
+  local launch_result = tasks.run_task(selection.value.task)
+  if not launch_result.is_success then
+    vim.notify(string.format("ABORT: %s", launch_result.error_msg), vim.log.levels.ERROR)
+    return true
+  end
+end
+
+local task_name_max_len = 15
 local function make_display(entry)
   if not config.show_file_path_in_telescope_picker then
     return entry.task.name
@@ -64,14 +73,8 @@ M.tasks_picker = function(opts)
     previewer = conf.grep_previewer({}),
     sorter = conf.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
-      actions.select_default:replace(function()
-        actions.close(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
-        tasks.run_task(selection.value.task)
-        vim.fn.feedkeys("i", "n")
-      end)
-
-      map("i", "<C-r>", custom_actions.reuse_as_template)
+      map({"i", "n"}, "<C-r>", custom_actions.reuse_as_template)
+      map({"i", "n"}, "<Enter>", custom_actions.launch_the_picked_task)
       return true
 
     end,

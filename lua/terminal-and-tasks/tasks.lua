@@ -87,11 +87,20 @@ function M.collect_tasks()
 end
 
 function M.run_task(task)
+  local launch_result = {is_success = true, error_msg = nil}
+  if task.env and (type(task.env) ~= "table" or next(task.env) == nil) then
+    launch_result.is_success = false
+    launch_result.error_msg = "Env variable must be no empty table or nil!"
+    return launch_result
+  end
+
   M.last_runned_task = task
   vim.cmd("tabnew")
   local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = task.env})
   vim.fn.chansend(job_id, { task.cmd, "" })
-  vim.api.nvim_buf_set_name(0, string.format("TerminalTask: %s", task.name))
+  -- It throws error in some cases. Need to fix
+  -- vim.api.nvim_buf_set_name(0, string.format("TerminalTask: %s", task.name))
+  return launch_result
 end
 
 
@@ -102,6 +111,7 @@ function M.update_tasks_from_file(file_path)
     return
   end
 
+  --WARNING: This should return {is_success = boolen, error_msg = string} instead printing (for unit testing, etc..)
   if not is_success then
     vim.notify(string.format("Unable to reload: %s", vim.fn.fnamemodify(file_path, ":~")), vim.log.levels.ERROR)
   else

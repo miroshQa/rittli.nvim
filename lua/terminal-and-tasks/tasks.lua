@@ -14,9 +14,13 @@ M.loaded_tasks = {}
 --       env = {},
 --       cmd = string,
 --       cwd = string,
+--       is_available = function,
 --     }
 --   }
 -- }
+
+local is_available_default = function() return true end
+
 M.last_runned_task = nil
 local files_with_tasks_need_to_be_reloaded = {}
 
@@ -54,12 +58,14 @@ local function load_tasks_from_file(file_path)
   end
 
   local file_with_tasks = io.open(file_path, "r")
+  local is_available_default_for_file = module_with_tasks.is_available or is_available_default
 
   for _, task in ipairs(module_with_tasks.tasks) do
+    task.is_available = task.is_available or is_available_default_for_file
     local task_container = {
       task_source_file_path = file_path,
       task = task,
-      task_begin_line_number = find_task_begin_line_number_by_name(file_with_tasks, task.name)
+      task_begin_line_number = find_task_begin_line_number_by_name(file_with_tasks, task.name),
     }
     M.loaded_tasks[task.name] = task_container
   end
@@ -80,8 +86,10 @@ end
 function M.collect_tasks()
   local tasks = {}
   M.update_all_tasks()
-  for _, value in pairs(M.loaded_tasks) do
-    table.insert(tasks, value)
+  for _, task_container in pairs(M.loaded_tasks) do
+    if type(task_container.task.is_available) ~= "function" or task_container.task.is_available() then
+      table.insert(tasks, task_container)
+    end
   end
   return tasks
 end
@@ -93,6 +101,9 @@ function M.run_task(task)
     return launch_result
   elseif type(task.cmd) ~= "table" then
     launch_result.error_msg = "CMD field must be table!"
+    return launch_result
+  elseif type(task.is_available) ~= "function" then
+    launch_result.error_msg = "is_available must be function and return bool value!"
     return launch_result
   end
 

@@ -24,8 +24,12 @@ Install the plugin using lazy.nvim plugin manager:
  {
      "miron2363/terminal-and-tasks",
      lazy = true,
+     dependencies = {
+         'nvim-telescope/telescope.nvim'
+     },
      keys = {
          { "<C-t>",     function() require("terminal-and-tasks.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" } },
+         {"<Esc><Esc>", "<C-\\><C-n>", mode = "t"},
          { "<leader>r", function() require("terminal-and-tasks.telescope_tasks").tasks_picker() end },
          { "<leader>R", function() require("terminal-and-tasks.telescope_tasks").run_last_runned_task() end },
          { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
@@ -37,7 +41,7 @@ Install the plugin using lazy.nvim plugin manager:
 ```
 
 
-## 🚀 Tutorail
+## 🚀 Tutorial
 ### 1. Create global tasks
 1. Create "tasks" folder inside your user configuration directory in the "lua" folder.  
 2. Create lua files what return lua table with the field "tasks", where your own tasks defined.

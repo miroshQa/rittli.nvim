@@ -1,6 +1,6 @@
 # 🥷 Terminal-and-tasks 
 
-🔥  Intuitive, minimalistic tasks launcher with integration with Telescope and built-in terminal enhancement!
+🔥  Intuitive and minimalistic terminal tasks launcher with tight integration with Telescope!
 
 ![Preview](./demo/preview.png)
 
@@ -13,6 +13,8 @@
 - 🌎 Define local and global tasks
 - 👻 Reuse global tasks as template for local tasks
 
+
+*You can see some features preview [here](/demo/gallery.md)*
 
 
 ## 📦 Installation

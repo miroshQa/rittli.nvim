@@ -1,8 +1,6 @@
 require("terminal-and-tasks.terminal_tweaks")
 local config = require("terminal-and-tasks.config").config
 
--- to fina all files in local directory
-
 local M = {}
 
 M.loaded_tasks = {}
@@ -51,7 +49,7 @@ end
 
 local function load_tasks_from_file(file_path)
   local is_success, module_with_tasks = pcall(dofile, file_path)
-  if not is_success then
+  if not is_success or not module_with_tasks or not module_with_tasks.tasks then
     return false
   end
 

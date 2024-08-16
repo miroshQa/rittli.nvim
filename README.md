@@ -50,7 +50,7 @@ local M = {}
 M.tasks = {
   {
     name = "List all the files and print hello",
-    cmd = "ls -la ; echo $greeting",
+    cmd = {"ls -la", "echo $greeting"},
     env = {greeting = "Hello"},
     cwd = "",
   },

@@ -87,19 +87,24 @@ function M.collect_tasks()
 end
 
 function M.run_task(task)
-  local launch_result = {is_success = true, error_msg = nil}
+  local launch_result = {is_success = false, error_msg = nil}
   if task.env and (type(task.env) ~= "table" or next(task.env) == nil) then
-    launch_result.is_success = false
     launch_result.error_msg = "Env variable must be no empty table or nil!"
+    return launch_result
+  elseif type(task.cmd) ~= "table" then
+    launch_result.error_msg = "CMD field must be table!"
     return launch_result
   end
 
   M.last_runned_task = task
   vim.cmd("tabnew")
   local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = task.env})
-  vim.fn.chansend(job_id, { task.cmd, "" })
+  for _, command in ipairs(task.cmd) do
+    vim.fn.chansend(job_id, { command, "" })
+  end
   -- It throws error in some cases. Need to fix
   -- vim.api.nvim_buf_set_name(0, string.format("TerminalTask: %s", task.name))
+  launch_result.is_success = true
   return launch_result
 end
 

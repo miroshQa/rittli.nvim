@@ -1,6 +1,11 @@
 local M = {}
 
 
+local tasks = require "terminal-and-tasks.tasks"
+local config = require("terminal-and-tasks.config").config
+local str_custom = require("terminal-and-tasks.string_custom_functions")
+
+
 local pickers = require "telescope.pickers"
 local finders = require "telescope.finders"
 local conf = require("telescope.config").values
@@ -8,11 +13,10 @@ local previewers = require "telescope.previewers"
 local actions = require "telescope.actions"
 local action_state = require "telescope.actions.state"
 
-local tasks = require "terminal-and-tasks.tasks"
-local config = require("terminal-and-tasks.config").config
-local str_custom = require("terminal-and-tasks.string_custom_functions")
 
 local custom_actions = {}
+
+
 custom_actions.reuse_as_template = function(prompt_bufnr)
   local entry = action_state.get_selected_entry()
   local path_to_folder_with_tasks = string.format("%s/%s/", vim.uv.cwd(), config.folder_name_with_tasks)
@@ -39,6 +43,7 @@ custom_actions.launch_the_picked_task = function(prompt_bufnr)
     return true
   end
 end
+
 
 local task_name_max_len = 15
 local function make_display(entry)

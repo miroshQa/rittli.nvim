@@ -99,9 +99,9 @@ function M.update_tasks_from_file(file_path)
   end
 
   if not is_success then
-    vim.notify(string.format("Unable to reload tasks. FILE: %s", file_path), vim.log.levels.ERROR)
+    vim.notify(string.format("Unable to reload: %s", vim.fn.fnamemodify(file_path, ":~")), vim.log.levels.ERROR)
   else
-    vim.notify(string.format("Reload success. FILE: %s", file_path), vim.log.levels.INFO)
+    vim.notify(string.format("Reloaded: %s", vim.fn.fnamemodify(file_path, ":~")), vim.log.levels.INFO)
   end
 end
 

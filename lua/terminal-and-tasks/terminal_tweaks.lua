@@ -1,4 +1,3 @@
-require("terminal-and-tasks.tabs_tweaks")
 local config = require("terminal-and-tasks.config").config
 
 local M = {}

@@ -38,19 +38,6 @@ function M.clear_tasks_loaded_from_files(files)
 end
 
 
-local function find_task_begin_line_number_by_name(file_with_tasks, name)
-  file_with_tasks:seek("set", 0)
-  local lines = file_with_tasks:lines()
-  local line_number = 1
-  for line in lines do
-    if string.find(line, name) then
-      return line_number
-    end
-    line_number = line_number + 1
-  end
-end
-
-
 local is_available_default = function() return true end
 function M.load_tasks_from_file(file_path)
   local is_success, module_with_tasks = pcall(dofile, file_path)
@@ -58,15 +45,23 @@ function M.load_tasks_from_file(file_path)
     return false
   end
 
-  local file_with_tasks = io.open(file_path, "r")
+  local file_with_tasks_lines = io.open(file_path, "r"):lines()
+  local line_number = 0
   local is_available_default_for_file = module_with_tasks.is_available or is_available_default
 
   for _, task in ipairs(module_with_tasks.tasks) do
     task.is_available = task.is_available or is_available_default_for_file
+    for line in file_with_tasks_lines do
+      line_number = line_number + 1
+      if string.find(line, task.name) then
+        break
+      end
+    end
+
     local task_container = {
       task_source_file_path = file_path,
       task = task,
-      task_begin_line_number = find_task_begin_line_number_by_name(file_with_tasks, task.name),
+      task_begin_line_number = line_number,
     }
     loaded_tasks[task.name] = task_container
   end
@@ -120,7 +115,7 @@ function M.collect_tasks()
 end
 
 function M.register_file_with_tasks_for_update(file_path)
-    files_with_tasks_need_to_be_reloaded[file_path] = true
+  files_with_tasks_need_to_be_reloaded[file_path] = true
 end
 
 function M.get_last_runned_task()

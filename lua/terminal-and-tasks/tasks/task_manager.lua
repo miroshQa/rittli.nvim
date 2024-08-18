@@ -122,29 +122,65 @@ function M.get_last_runned_task()
   return last_runned_task
 end
 
-function M.run_task(task)
-  local launch_result = {is_success = false, error_msg = nil}
-  if task.env and (type(task.env) ~= "table" or next(task.env) == nil) then
-    launch_result.error_msg = "Env variable must be no empty table or nil!"
-    return launch_result
-  elseif type(task.cmd) ~= "table" then
-    launch_result.error_msg = "CMD field must be table!"
-    return launch_result
+function M.validiate_task(task)
+  local validation_result = {is_success = false, error_msg = nil, builder_result = nil}
+  if task.builder and (task.env or task.cmd) then
+    validation_result.error_msg = "You can't have the fields 'cmd' and 'env' if you use builder!"
+    return validation_result
+  elseif type(task.builder) ~= "function" then
+    validation_result.error_msg = "Builder must be a function!"
+  end
+
+  local env = task.env
+  local cmd = task.cmd
+
+  if task.builder then
+    validation_result.builder_result = task.builder()
+    if not validation_result.builder_result then
+      validation_result.error_msg = "Builder must return lua table with fields 'cmd', env, ... !"
+      return validation_result
+    end
+    cmd = validation_result.builder_result.cmd
+    env = validation_result.builder_result.env
+  end
+
+  if env and (type(env) ~= "table" or next(env) == nil) then
+    validation_result.error_msg = "Env variable must be no empty table or nil!"
+    return validation_result
+  elseif type(cmd) ~= "table" then
+    validation_result.error_msg = "CMD field must be table!"
+    return validation_result
   elseif type(task.is_available) ~= "function" then
-    launch_result.error_msg = "is_available must be function and return bool value!"
-    return launch_result
+    validation_result.error_msg = "is_available must be function and return bool value!"
+    return validation_result
+  end
+  validation_result.is_success = true
+  return validation_result
+end
+
+function M.run_task(task)
+  local validation_result = M.validiate_task(task)
+  if not validation_result.is_success then
+    return validation_result
+  end
+
+  local cmd = task.cmd
+  local env = task.env
+
+  if validation_result.builder_result then
+    cmd = validation_result.builder_result.cmd
+    env = validation_result.builder_result.env
   end
 
   last_runned_task = task
   vim.cmd("tabnew")
-  local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = task.env})
-  for _, command in ipairs(task.cmd) do
+  local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = env})
+  for _, command in ipairs(cmd) do
     vim.fn.chansend(job_id, { command, "" })
   end
   -- It throws error in some cases. Need to fix
-  -- vim.api.nvim_buf_set_name(0, string.format("TerminalTask: %s", task.name))
-  launch_result.is_success = true
-  return launch_result
+  -- pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
+  return validation_result
 end
 
 return M

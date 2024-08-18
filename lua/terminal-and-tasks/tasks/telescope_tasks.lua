@@ -36,11 +36,14 @@ end
 
 custom_actions.launch_the_picked_task = function(prompt_bufnr)
   local selection = action_state.get_selected_entry()
+  actions.close(prompt_bufnr)
   local launch_result = task_manager.run_task(selection.value.task)
   if not launch_result.is_success then
     vim.notify(string.format("ABORT: %s", launch_result.error_msg), vim.log.levels.ERROR)
+    vim.cmd("Telescope resume")
     return true
   end
+  vim.api.nvim_feedkeys("i", "n", false)
 end
 
 

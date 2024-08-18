@@ -32,6 +32,7 @@ custom_actions.reuse_as_template = function(prompt_bufnr)
   vim.uv.fs_copyfile(entry.filename, copy_to)
   actions.close(prompt_bufnr)
   vim.cmd(string.format("edit %s", copy_to))
+  vim.cmd(string.format("%s", entry.lnum))
 end
 
 custom_actions.launch_the_picked_task = function(prompt_bufnr)

@@ -54,6 +54,8 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.api.nvim_command("set ft=terminal")
     -- Doesn't work without vim.schedule properly
     -- I definitely should read about main event-loop somewhere
+    -- https://en.wikipedia.org/wiki/Event_loop
+    -- :help event-loop
     vim.schedule(function() vim.api.nvim_command("startinsert") end)
     vim.api.nvim_command("setlocal nonumber norelativenumber signcolumn=no")
     if config.should_register_terminal_enter() then

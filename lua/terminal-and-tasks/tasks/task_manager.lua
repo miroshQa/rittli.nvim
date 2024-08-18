@@ -95,17 +95,16 @@ function M.update_tasks_from_file(file_path)
 end
 
 
-function M.update_tasks_from_files(files)
-  for file_path, _ in pairs(files) do
-    M.update_tasks_from_file(file_path)
-    files_with_tasks_need_to_be_reloaded[file_path] = nil
-  end
-end
-
-
 function M.collect_tasks()
   local tasks = {}
-  M.update_tasks_from_files(files_with_tasks_need_to_be_reloaded)
+  for file_path, old_mtime in pairs(files_with_tasks_need_to_be_reloaded) do
+    local curr_mtime = vim.uv.fs_stat(file_path).mtime
+    if curr_mtime.sec ~= old_mtime.sec or curr_mtime.nsec ~= old_mtime.nsec then
+      M.update_tasks_from_file(file_path)
+    end
+    files_with_tasks_need_to_be_reloaded[file_path] = nil
+  end
+
   for _, task_container in pairs(loaded_tasks) do
     if type(task_container.task.is_available) ~= "function" or task_container.task.is_available() then
       table.insert(tasks, task_container)
@@ -115,7 +114,8 @@ function M.collect_tasks()
 end
 
 function M.register_file_with_tasks_for_update(file_path)
-  files_with_tasks_need_to_be_reloaded[file_path] = true
+  -- https://linux.die.net/man/2/stat
+  files_with_tasks_need_to_be_reloaded[file_path] = vim.uv.fs_stat(file_path).mtime
 end
 
 function M.get_last_runned_task()

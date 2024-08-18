@@ -51,7 +51,10 @@ end
 
 vim.api.nvim_create_autocmd("TermOpen", {
   callback = function()
-    vim.api.nvim_command("set ft=terminal | startinsert")
+    vim.api.nvim_command("set ft=terminal")
+    -- Doesn't work without vim.schedule properly
+    -- I definitely should read about main event-loop somewhere
+    vim.schedule(function() vim.api.nvim_command("startinsert") end)
     vim.api.nvim_command("setlocal nonumber norelativenumber signcolumn=no")
     if config.should_register_terminal_enter() then
       register_terminal_enter()
@@ -63,7 +66,7 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
   group = vim.api.nvim_create_augroup("TerminalEnterRegistrator", {clear = true}),
   callback = function()
     if vim.bo.filetype == "terminal" and config.should_register_terminal_enter() then
-      vim.api.nvim_command("startinsert")
+      vim.schedule(function() vim.api.nvim_command("startinsert") end)
       register_terminal_enter()
     end
   end,

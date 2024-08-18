@@ -43,7 +43,6 @@ custom_actions.launch_the_picked_task = function(prompt_bufnr)
     vim.cmd("Telescope resume")
     return true
   end
-  vim.api.nvim_feedkeys("i", "n", false)
 end
 
 

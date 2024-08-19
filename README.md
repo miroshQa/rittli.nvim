@@ -113,6 +113,8 @@ opts = {
 }
 ```
 
+*You can find some configuration recipes [here](/demo/configuration-recipes.md)*
+
 
 ## ❔ Explanation
 What this plugin does and why is it called like that?   

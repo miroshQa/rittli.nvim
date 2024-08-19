@@ -34,7 +34,10 @@ end
 function M.toggle_last_openned_terminal()
   keep_pop_until_find_existing_terminal()
   if #terminals_enters_stack == 0 then
-    vim.api.nvim_command("tabnew | terminal")
+    -- Creating a buffer for which you need to create a window
+    local bufnr = vim.api.nvim_create_buf(true, false)
+    config.create_window_for_terminal(bufnr)
+    vim.fn.termopen(vim.o.shell, {detach = true})
     return
   end
 
@@ -44,7 +47,7 @@ function M.toggle_last_openned_terminal()
   elseif vim.api.nvim_win_is_valid(last_enter_info.openned_terminal_window_id)  then
     vim.fn.win_gotoid(last_enter_info.openned_terminal_window_id)
   else
-    vim.api.nvim_command("tab sb " .. last_enter_info.openned_terminal_buffer_number)
+    config.create_window_for_terminal(last_enter_info.openned_terminal_buffer_number)
     last_enter_info.openned_terminal_window_id = vim.fn.win_getid()
   end
 end

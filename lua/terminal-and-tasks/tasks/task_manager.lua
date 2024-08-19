@@ -173,7 +173,8 @@ function M.run_task(task)
   end
 
   last_runned_task = task
-  vim.cmd("tabnew")
+  local bufnr = vim.api.nvim_create_buf(true, false)
+  config.create_window_for_terminal(bufnr)
   local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = env})
   for _, command in ipairs(cmd) do
     vim.fn.chansend(job_id, { command, "" })

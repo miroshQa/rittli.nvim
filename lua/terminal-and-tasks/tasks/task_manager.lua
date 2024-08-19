@@ -122,27 +122,29 @@ function M.get_last_runned_task()
   return last_runned_task
 end
 
+
+
 function M.validiate_task(task)
   local validation_result = {is_success = false, error_msg = nil, builder_result = nil}
-  if task.builder and (task.env or task.cmd) then
-    validation_result.error_msg = "You can't have the fields 'cmd' and 'env' if you use builder!"
-    return validation_result
-  elseif type(task.builder) ~= "function" then
-    validation_result.error_msg = "Builder must be a function!"
-  end
-
   local env = task.env
   local cmd = task.cmd
 
-  if task.builder then
+  if task.builder and (env or cmd) then
+    validation_result.error_msg = "You can't have the fields 'cmd' and 'env' if you use builder!"
+    return validation_result
+  elseif task.builder and type(task.builder) ~= "function" then
+    validation_result.error_msg = "Builder must be a function!"
+    return validation_result
+  elseif task.builder then
     validation_result.builder_result = task.builder()
     if not validation_result.builder_result then
-      validation_result.error_msg = "Builder must return lua table with fields 'cmd', env, ... !"
+      validation_result.error_msg = "Builder must return lua table!"
       return validation_result
     end
     cmd = validation_result.builder_result.cmd
     env = validation_result.builder_result.env
   end
+
 
   if env and (type(env) ~= "table" or next(env) == nil) then
     validation_result.error_msg = "Env variable must be no empty table or nil!"
@@ -157,6 +159,8 @@ function M.validiate_task(task)
   validation_result.is_success = true
   return validation_result
 end
+
+
 
 function M.run_task(task)
   local validation_result = M.validiate_task(task)

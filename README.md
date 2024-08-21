@@ -45,7 +45,6 @@ Install the plugin using lazy.nvim plugin manager:
 ### 1. Create global tasks
 1. Create "tasks" folder inside your user configuration directory in the "lua" folder.  
 2. Create lua files what return lua table with the field "tasks", where your own tasks defined.
-3. Use this example below it covers all available task field
 
 ```lua
 -- ~/user/.config/nvim/lua/tasks/some_tasks.lua 
@@ -83,7 +82,7 @@ return M
 4. To open one of these opened and then hidden terminals, press "leader + leader", select the desired terminal and press "ctrl + t"
 
 **Notes:**
-- You can CLOSE (not hide) the terminal, simply type "exit" in the shell or press "ctrl + d" (it works in bash) and press any key in insert mode
+- You can CLOSE (not hide) the terminal, simply type "exit" in the shell or press "ctrl + d" and press any key in insert mode
 
 ### 4. Edit tasks
 1. Open the Telescope tasks picker (press "leader + r") and select the desired task.      

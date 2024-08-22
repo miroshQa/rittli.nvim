@@ -23,16 +23,16 @@ Install the plugin using lazy.nvim plugin manager:
 
 ```lua
  {
-     "miron2363/terminal-and-tasks",
+     "miroshQa/terminal-and-tasks",
      lazy = true,
      dependencies = {
          'nvim-telescope/telescope.nvim'
      },
      keys = {
-         { "<C-t>",     function() require("terminal-and-tasks.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" } },
+         { "<C-t>",     function() require("terminal-and-tasks.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" }},
          {"<Esc><Esc>", "<C-\\><C-n>", mode = "t"},
-         { "<leader>r", function() require("terminal-and-tasks.tasks.telescope_tasks").tasks_picker() end },
-         { "<leader>R", function() require("terminal-and-tasks.tasks.telescope_tasks").run_last_runned_task() end },
+         { "<leader>r", function() require("terminal-and-tasks.tasks.telescope_tasks").run_last_runned_task() end, desc = "Rerun the last task or pick a new one" },
+         { "<leader>R", function() require("terminal-and-tasks.tasks.telescope_tasks").tasks_picker() end, desc = "Pick the task" },
          { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
      },
      opts = {},
@@ -52,11 +52,11 @@ Install the plugin using lazy.nvim plugin manager:
 local M = {}
 
 M.tasks = {
-  {
-    name = "List all the files and print hello",
-    cmd = {"ls -la", "echo $greeting"},
-    env = {greeting = "Hello"},
-  },
+    {
+        name = "List all the files and print hello",
+        cmd = {"ls -la", "echo $greeting"},
+        env = {greeting = "Hello"},
+    },
 }
 
 return M

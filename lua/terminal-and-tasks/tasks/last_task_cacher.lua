@@ -1,4 +1,5 @@
 local tasks_manager = require("terminal-and-tasks.tasks.task_manager")
+local config = require("terminal-and-tasks.config").config
 
 local cache_file_path = vim.fn.stdpath("cache") .. "/last_tasks_cache.json"
 local last_tasks_name_per_dir = {}
@@ -41,12 +42,14 @@ vim.api.nvim_create_autocmd("User", {
   end
 })
 
-vim.api.nvim_create_autocmd("DirChanged", {
-  group = vim.api.nvim_create_augroup("UpdateLastTask", {clear = true}),
-  callback = function()
-    set_last_task_for_cwd()
-  end
-})
+if config.reload_last_task_when_cwd_changes then
+  vim.api.nvim_create_autocmd("DirChanged", {
+    group = vim.api.nvim_create_augroup("UpdateLastTask", {clear = true}),
+    callback = function()
+      set_last_task_for_cwd()
+    end
+  })
+end
 
 vim.api.nvim_create_autocmd("VimLeave", {
   group = vim.api.nvim_create_augroup("LastTasksSaveOnVimExit", {clear = true}),

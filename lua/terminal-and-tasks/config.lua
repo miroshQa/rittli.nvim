@@ -8,6 +8,7 @@ M.config = {
   should_register_terminal_enter = function()
     return vim.fn.expand("%") ~= "NeogitConsole"
   end,
+  remember_last_task = true,
   create_window_for_terminal = function(bufnr)
     vim.cmd("tabnew")
     local tab_bufnr = vim.fn.bufnr("%")

@@ -89,9 +89,9 @@ M.tasks_picker = function(opts)
 end
 
 M.run_last_runned_task = function(opts)
-  local last_runned_task = task_manager.get_last_runned_task()
-  if last_runned_task then
-    task_manager.run_task(last_runned_task)
+  local last_task = task_manager.get_last_runned_task()
+  if last_task then
+    task_manager.run_task(last_task)
   else
     M.tasks_picker(opts)
   end

@@ -3,9 +3,12 @@ local config = require("terminal-and-tasks.config").config
 -- This whole module (file) il like a class and in this table below I define public methods or fields
 local M = {}
 
+
 -- These are private fields of this imaginable class
 local files_with_tasks_need_to_be_reloaded = {}
 local last_runned_task = nil
+
+
 local loaded_tasks = {}
 -- THIS TABLE CONTAINS TASK CONTAINERS AS BELOW
 -- local loaded_tasks = {
@@ -118,11 +121,6 @@ function M.register_file_with_tasks_for_update(file_path)
   files_with_tasks_need_to_be_reloaded[file_path] = vim.uv.fs_stat(file_path).mtime
 end
 
-function M.get_last_runned_task()
-  return last_runned_task
-end
-
-
 
 function M.validiate_task(task)
   local validation_result = {is_success = false, error_msg = nil, builder_result = nil}
@@ -183,9 +181,23 @@ function M.run_task(task)
   for _, command in ipairs(cmd) do
     vim.fn.chansend(job_id, { command, "" })
   end
+  vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched"})
   -- It throws error in some cases. Need to fix
   -- pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
   return validation_result
+end
+
+function M.get_last_runned_task()
+  return last_runned_task
+end
+
+function M.set_new_last_runned_task_by_name(name)
+  local new_task = loaded_tasks[name]
+  if not new_task then
+    return false
+  end
+  last_runned_task = new_task.task
+  return true
 end
 
 return M

@@ -12,6 +12,7 @@
 - ⚡️ Built-in Neovim terminal improvements (Toggle the last openned terminal)
 - 🌎 Define local and global tasks
 - 👻 Reuse global tasks as template for local tasks
+- 🌟 Last tasks is rememberd for each directory
 
 
 *You can see some features preview [here](/demo/gallery.md)*

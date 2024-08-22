@@ -9,7 +9,7 @@ M.config = {
     return vim.fn.expand("%") ~= "NeogitConsole"
   end,
   remember_last_task = true,
-  reload_last_task_when_cwd_changes = false,
+  reload_last_task_when_cwd_changes = true,
   create_window_for_terminal = function(bufnr)
     vim.cmd("tabnew")
     local tab_bufnr = vim.fn.bufnr("%")

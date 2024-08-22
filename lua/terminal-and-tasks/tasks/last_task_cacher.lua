@@ -25,8 +25,9 @@ end
 
 local function set_last_task_for_cwd()
   local cwd_last_task_name = last_tasks_name_per_dir[vim.uv.cwd()]
-  if cwd_last_task_name then
-    tasks_manager.set_new_last_runned_task_by_name(cwd_last_task_name)
+  local task = tasks_manager.get_task_by_name(cwd_last_task_name)
+  if task then
+    tasks_manager.last_runned_task_name = cwd_last_task_name
   end
 end
 
@@ -38,7 +39,7 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "TaskLaunched",
   group = vim.api.nvim_create_augroup("LastTasksPerDirCacher", {clear = true}),
   callback = function()
-    last_tasks_name_per_dir[vim.uv.cwd()] = tasks_manager.get_last_runned_task().name
+    last_tasks_name_per_dir[vim.uv.cwd()] = tasks_manager.last_runned_task_name
   end
 })
 

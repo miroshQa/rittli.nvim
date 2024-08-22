@@ -66,7 +66,7 @@ M.tasks_picker = function(opts)
   pickers.new(opts, {
     prompt_title = "SelectTaskToLaunch",
     finder = finders.new_table({
-      results = task_manager.collect_tasks(),
+      results = task_manager.collect_task_containers(),
       entry_maker = function(entry)
         return {
           value = entry,
@@ -89,7 +89,7 @@ M.tasks_picker = function(opts)
 end
 
 M.run_last_runned_task = function(opts)
-  local last_task = task_manager.get_last_runned_task()
+  local last_task = task_manager.get_task_by_name(task_manager.last_runned_task_name)
   if last_task then
     task_manager.run_task(last_task)
   else

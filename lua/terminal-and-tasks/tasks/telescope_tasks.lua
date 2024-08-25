@@ -63,7 +63,7 @@ end
 
 M.tasks_picker = function(opts)
   opts = opts or {}
-  pickers.new(opts, {
+  local picker = pickers.new(opts, {
     prompt_title = "SelectTaskToLaunch",
     finder = finders.new_table({
       results = task_manager.collect_task_containers(),
@@ -83,9 +83,30 @@ M.tasks_picker = function(opts)
       map({"i", "n"}, "<C-r>", custom_actions.reuse_as_template)
       map({"i", "n"}, "<Enter>", custom_actions.launch_the_picked_task)
       return true
-
     end,
-  }):find()
+    on_complete = {
+      -- this function executes when whe open a picker. Post below helps me a lot
+      -- https://www.reddit.com/r/neovim/comments/1cdu23m/multiselect_in_telescope_is_it_possible_for_me_to/
+      -- We use this option to preselect the entry with the last runned task!
+
+      function(picker)
+        local last_runned_task_name = task_manager.last_runned_task_name
+        if last_runned_task_name == "" then
+          return
+        end
+
+        local i = 1
+        for entry in picker.manager:iter() do
+          if entry.value.task.name == last_runned_task_name then
+            picker:set_selection(picker:get_row(i))
+            return
+          end
+          i = i + 1
+        end
+      end
+    }
+  })
+  picker:find()
 end
 
 M.run_last_runned_task = function(opts)

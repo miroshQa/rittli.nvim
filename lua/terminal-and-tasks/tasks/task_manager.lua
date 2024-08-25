@@ -118,6 +118,7 @@ function M.collect_task_containers()
       table.insert(tasks, task_container)
     end
   end
+  table.sort(tasks, function(a, b) return a.task.name < b.task.name end)
   return tasks
 end
 

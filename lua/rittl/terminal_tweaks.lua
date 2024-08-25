@@ -1,4 +1,4 @@
-local config = require("terminal-and-tasks.config").config
+local config = require("rittl.config").config
 
 local M = {}
 

@@ -1,5 +1,5 @@
-local config = require("terminal-and-tasks.config").config
-local task_manager = require("terminal-and-tasks.tasks.task_manager")
+local config = require("rittl.config").config
+local task_manager = require("rittl.tasks.task_manager")
 
 
 -- see :help autocmd-pattern

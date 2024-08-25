@@ -1,5 +1,5 @@
-local tasks_manager = require("terminal-and-tasks.tasks.task_manager")
-local config = require("terminal-and-tasks.config").config
+local tasks_manager = require("rittl.tasks.task_manager")
+local config = require("rittl.config").config
 
 local cache_file_path = vim.fn.stdpath("cache") .. "/last_tasks_cache.json"
 local last_tasks_name_per_dir = {}

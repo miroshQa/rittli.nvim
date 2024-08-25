@@ -1,9 +1,9 @@
 local M = {}
 
 
-local task_manager = require "terminal-and-tasks.tasks.task_manager"
-local config = require("terminal-and-tasks.config").config
-local str_custom = require("terminal-and-tasks.utils.string_custom_functions")
+local task_manager = require "rittl.tasks.task_manager"
+local config = require("rittl.config").config
+local str_custom = require("rittl.utils.string_custom_functions")
 
 
 local pickers = require "telescope.pickers"

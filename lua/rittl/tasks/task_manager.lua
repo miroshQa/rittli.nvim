@@ -1,4 +1,4 @@
-local config = require("terminal-and-tasks.config").config
+local config = require("rittl.config").config
 
 -- This whole module (file) il like a class and in this table below I define public methods or fields
 local M = {}

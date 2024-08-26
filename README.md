@@ -23,19 +23,19 @@ Install the plugin using lazy.nvim plugin manager:
 
 ```lua
  {
-     "miroshQa/Rittl",
-     lazy = true,
-     dependencies = {
-         'nvim-telescope/telescope.nvim'
-     },
-     keys = {
-         { "<C-t>",     function() require("rittl.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" }},
-         {"<Esc><Esc>", "<C-\\><C-n>", mode = "t"},
-         { "<leader>r", function() require("rittl.tasks.telescope").run_last_runned_task() end, desc = "Rerun the last task or pick a new one" },
-         { "<leader>R", function() require("rittl.tasks.telescope").tasks_picker() end, desc = "Pick the task" },
-         { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
-     },
-     opts = {},
+   "miroshQa/Rittl",
+   lazy = true,
+   dependencies = {
+     'nvim-telescope/telescope.nvim'
+   },
+   keys = {
+     { "<C-t>",     function() require("rittl.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" }},
+     {"<Esc><Esc>", "<C-\\><C-n>", mode = "t"},
+     { "<leader>r", function() require("rittl.tasks.telescope").run_last_runned_task() end, desc = "Rerun the last task or pick a new one" },
+     { "<leader>R", function() require("rittl.tasks.telescope").tasks_picker() end, desc = "Pick the task" },
+     { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
+   },
+   opts = {},
  }
 
  -- You also need telescope to be installed
@@ -52,38 +52,38 @@ Install the plugin using lazy.nvim plugin manager:
 local M = {}
 
 M.tasks = {
-    {
-        name = "List all the files and print Hello!",
-        builder = function() 
-            local task = {
-                cmd = {"ls -la", "echo $greeting"},
-                env = {greeting = "Hello"}
-            }
+  {
+    name = "List all the files and print Hello!",
+    builder = function() 
+      local task = {
+        cmd = {"ls -la", "echo $greeting"},
+        env = {greeting = "Hello"}
+      }
 
-            return task
-        end,
-    },
-    {
-        name = "Build and Run current CPP or C file with Args",
-        builder = function()
-            vim.cmd("wa")
-            local cur_file = vim.fn.expand("%")
-            if vim.fn.isdirectory("build") == 0 then
-                vim.fn.mkdir("build")
-            end
-            -- See :help fnamemodify, :help filename-modifiers
-            local bin_name = vim.fn.fnamemodify(cur_file, ":t:r")
-            local compiler = vim.bo.filetype == "c" and "gcc" or "g++"
-            local args = vim.fn.input({prompt = "Enter exe arguments: "})
-            local task = {
-                cmd = {
-                    string.format("%s %s -o build/%s", compiler, cur_file, bin_name),
-                    string.format("./build/%s %s", bin_name, args)
-                },
-            }
-            return task
-        end,
-    },
+      return task
+    end,
+  },
+  {
+    name = "Build and Run current CPP or C file with Args",
+    builder = function()
+      vim.cmd("wa")
+      local cur_file = vim.fn.expand("%")
+      if vim.fn.isdirectory("build") == 0 then
+        vim.fn.mkdir("build")
+      end
+      -- See :help fnamemodify, :help filename-modifiers
+      local bin_name = vim.fn.fnamemodify(cur_file, ":t:r")
+      local compiler = vim.bo.filetype == "c" and "gcc" or "g++"
+      local args = vim.fn.input({prompt = "Enter exe arguments: "})
+      local task = {
+        cmd = {
+          string.format("%s %s -o build/%s", compiler, cur_file, bin_name),
+          string.format("./build/%s %s", bin_name, args)
+        },
+      }
+      return task
+    end,
+  },
 }
 
 return M
@@ -135,8 +135,8 @@ return M
 You can check the default configuration [here](./lua/rittl.lua). To override default options, simply pass new values in the opts table
 ```lua
 opts = {
-    folder_name_with_tasks = "MyTasks",
-    disable_resource_messages = true,
+  folder_name_with_tasks = "MyTasks",
+  disable_resource_messages = true,
 }
 ```
 

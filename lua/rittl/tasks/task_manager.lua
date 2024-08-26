@@ -69,6 +69,7 @@ function M.load_tasks_from_file(file_path)
       task_source_file_path = file_path,
       task = task,
       task_begin_line_number = line_number,
+      builder_result_cache = nil,
     }
     loaded_tasks[task.name] = task_container
   end

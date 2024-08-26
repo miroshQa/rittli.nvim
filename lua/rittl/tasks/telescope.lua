@@ -39,7 +39,7 @@ custom_actions.launch_the_picked_task = function(prompt_bufnr)
   local selection = action_state.get_selected_entry()
   actions.close(prompt_bufnr)
   local task_container = selection.value
-  local launch_result = task_manager.run_task(task_container)
+  local launch_result = task_manager.run_task(task_container, false)
   if not launch_result.is_success then
     vim.notify(string.format("ABORT: %s", launch_result.error_msg), vim.log.levels.ERROR)
     vim.cmd("Telescope resume")
@@ -113,7 +113,7 @@ end
 M.run_last_runned_task = function(opts)
   local last_task_container = task_manager.get_task_container_by_name(task_manager.last_runned_task_name)
   if last_task_container then
-    task_manager.run_task(last_task_container.task)
+    task_manager.run_task(last_task_container, true)
   else
     M.tasks_picker(opts)
   end

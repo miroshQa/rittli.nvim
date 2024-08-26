@@ -64,7 +64,7 @@ M.tasks = {
         end,
     },
     {
-        name = "Build and Run current CPP or C file",
+        name = "Build and Run current CPP or C file with Args",
         builder = function()
             vim.cmd("wa")
             local cur_file = vim.fn.expand("%")
@@ -74,10 +74,11 @@ M.tasks = {
             -- See :help fnamemodify, :help filename-modifiers
             local bin_name = vim.fn.fnamemodify(cur_file, ":t:r")
             local compiler = vim.bo.filetype == "c" and "gcc" or "g++"
+            local args = vim.fn.input({prompt = "Enter exe arguments: "})
             local task = {
                 cmd = {
                     string.format("%s %s -o build/%s", compiler, cur_file, bin_name),
-                    string.format("./build/%s", bin_name)
+                    string.format("./build/%s %s", bin_name, args)
                 },
             }
             return task

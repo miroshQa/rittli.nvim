@@ -1,4 +1,4 @@
-# 🥷 rittl.nvim
+# 🥷 rittli.nvim
 
 Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integration! 🔥
 
@@ -23,16 +23,16 @@ Install the plugin using lazy.nvim plugin manager:
 
 ```lua
  {
-   "miroshQa/rittl.nvim",
+   "miroshQa/rittli.nvim",
    lazy = true,
    dependencies = {
      'nvim-telescope/telescope.nvim'
    },
    keys = {
-     { "<C-t>",     function() require("rittl.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" }},
+     { "<C-t>",     function() require("rittli.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" }},
      {"<Esc><Esc>", "<C-\\><C-n>", mode = "t"},
-     { "<leader>r", function() require("rittl.tasks.telescope").run_last_runned_task() end, desc = "Rerun the last task or pick a new one" },
-     { "<leader>R", function() require("rittl.tasks.telescope").tasks_picker() end, desc = "Pick the task" },
+     { "<leader>r", function() require("rittli.tasks.telescope").run_last_runned_task() end, desc = "Rerun the last task or pick a new one" },
+     { "<leader>R", function() require("rittli.tasks.telescope").tasks_picker() end, desc = "Pick the task" },
      { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
    },
    opts = {},
@@ -132,7 +132,7 @@ return M
 
 
 ## ⚙️ Configuration
-You can check the default configuration [here](./lua/rittl/config.lua). To override default options, simply pass new values in the opts table
+You can check the default configuration [here](./lua/rittli/config.lua). To override default options, simply pass new values in the opts table
 ```lua
 opts = {
   folder_name_with_tasks = "MyTasks",

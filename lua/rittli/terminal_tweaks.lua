@@ -1,4 +1,4 @@
-local config = require("rittl.config").config
+local config = require("rittli.config").config
 
 local M = {}
 

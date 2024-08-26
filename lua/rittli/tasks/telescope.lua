@@ -1,8 +1,8 @@
 local M = {}
 
-local task_manager = require("rittl.tasks.task_manager")
-local config = require("rittl.config").config
-local str_custom = require("rittl.utils.string_custom_functions")
+local task_manager = require("rittli.tasks.task_manager")
+local config = require("rittli.config").config
+local str_custom = require("rittli.utils.string_custom_functions")
 
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")

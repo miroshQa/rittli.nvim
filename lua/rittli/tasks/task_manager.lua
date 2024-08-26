@@ -1,4 +1,4 @@
-local config = require("rittl.config").config
+local config = require("rittli.config").config
 
 -- This whole module (file) il like a class and in this table below I define public methods or fields
 local M = {}

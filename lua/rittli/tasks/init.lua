@@ -1,5 +1,5 @@
-local config = require("rittl.config").config
-local task_manager = require("rittl.tasks.task_manager")
+local config = require("rittli.config").config
+local task_manager = require("rittli.tasks.task_manager")
 
 local global_tasks_glob_pattern =
   string.format("%s/lua/%s/**/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks)
@@ -13,8 +13,8 @@ end
 on_startup()
 
 -- Enable additional (not necessary) modules
-require("rittl.tasks.auto_update")
+require("rittli.tasks.auto_update")
 
 if config.remember_last_task then
-  require("rittl.tasks.last_task_cacher")
+  require("rittli.tasks.last_task_cacher")
 end

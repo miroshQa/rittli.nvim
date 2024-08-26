@@ -1,0 +1,98 @@
+name: Bug Report
+description: Report a bug/issue
+title: "BUG: "
+labels: [bug]
+body:
+  - type: checkboxes
+    attributes:
+      label: Did you check docs and existing issues?
+      description: Make sure you checked all of the below before submitting an issue
+      options:
+        - label: I have read all the docs.
+          required: true
+        - label: I have searched the existing issues.
+          required: true
+        - label: I have searched the existing discussions.
+          required: true
+  - type: input
+    attributes:
+      label: "Neovim version (nvim -v)"
+      placeholder: "0.8.0"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Operating system/version"
+      placeholder: "Linux"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1.
+        2. 
+        3.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Repro
+      description: Minimal `init.lua` to reproduce this issue. Save as `repro.lua` and run with `nvim -u repro.lua`
+      value: |
+        local root = vim.fn.fnamemodify("./.repro", ":p")
+
+        -- set stdpaths to use .repro
+        for _, name in ipairs { "config", "data", "state", "cache" } do
+          vim.env[("XDG_%s_HOME"):format(name:upper())] = root .. "/" .. name
+        end
+
+        -- bootstrap lazy
+        local lazypath = root .. "/plugins/lazy.nvim"
+        if not vim.uv.fs_stat(lazypath) then
+          vim.fn.system {
+            "git",
+            "clone",
+            "--filter=blob:none",
+            "https://github.com/folke/lazy.nvim.git",
+            lazypath,
+          }
+        end
+        vim.opt.runtimepath:prepend(lazypath)
+
+        local plugins = {
+          {
+            "miroshQa/Rittl",
+            lazy = true,
+            keys = {
+              { "<C-t>",     function() require("rittl.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" }},
+              {"<Esc><Esc>", "<C-\\><C-n>", mode = "t"},
+              { "<leader>r", function() require("rittl.tasks.telescope").run_last_runned_task() end, desc = "Rerun the last task or pick the new" },
+              { "<leader>R", function() require("rittl.tasks.telescope").tasks_picker() end, desc = "Pick the task" },
+              { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
+            },
+            opts = {
+              -- ADD SETTINGS THAT ARE NECESSARY FOR REPRODUCING THE ISSUE
+            }
+          }
+        }
+
+        require("lazy").setup(plugins, {
+          root = root .. "/plugins",
+        })
+      render: lua
+    validations:
+      required: false

@@ -25,8 +25,8 @@ end
 
 local function set_last_task_for_cwd()
   local cwd_last_task_name = last_tasks_name_per_dir[vim.uv.cwd()]
-  local task = tasks_manager.get_task_by_name(cwd_last_task_name)
-  if task then
+  local task_container = tasks_manager.get_task_container_by_name(cwd_last_task_name)
+  if task_container then
     tasks_manager.last_runned_task_name = cwd_last_task_name
   end
 end

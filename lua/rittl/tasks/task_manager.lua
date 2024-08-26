@@ -18,12 +18,13 @@ local loaded_tasks = {}
 --   [name] = {  -- this 'name' key duplucate the task name
 --     task_source_file_path = string,
 --     task_begin_line_number = number,
+--     builder_result_cache = table,
 --     task = {
 --       name = string,
---       env = {},
---       cmd = string,
---       cwd = string,
 --       is_available = function,
+--       builder = function()
+--          return {cmd = {string, string, ...}, env = {var1 = value, var2 = value, ...}}
+--        end,
 --     }
 --   }
 -- }
@@ -130,13 +131,8 @@ end
 
 function M.validiate_task(task)
   local validation_result = {is_success = false, error_msg = nil, builder_result = nil}
-  local env = task.env
-  local cmd = task.cmd
 
-  if task.builder and (env or cmd) then
-    validation_result.error_msg = "You can't have the fields 'cmd' and 'env' if you use builder!"
-    return validation_result
-  elseif task.builder and type(task.builder) ~= "function" then
+  if not task.builder or type(task.builder) ~= "function" then
     validation_result.error_msg = "Builder must be a function!"
     return validation_result
   elseif task.builder then
@@ -147,57 +143,54 @@ function M.validiate_task(task)
     end
     cmd = validation_result.builder_result.cmd
     env = validation_result.builder_result.env
-  end
 
 
-  if env and (type(env) ~= "table" or next(env) == nil) then
-    validation_result.error_msg = "Env variable must be no empty table or nil!"
-    return validation_result
-  elseif type(cmd) ~= "table" then
-    validation_result.error_msg = "CMD field must be table!"
-    return validation_result
-  elseif type(task.is_available) ~= "function" then
-    validation_result.error_msg = "is_available must be function and return bool value!"
+    if env and (type(env) ~= "table" or next(env) == nil) then
+      validation_result.error_msg = "Env variable must be no empty table or nil!"
+      return validation_result
+    elseif type(cmd) ~= "table" then
+      validation_result.error_msg = "CMD field must be table!"
+      return validation_result
+    elseif type(task.is_available) ~= "function" then
+      validation_result.error_msg = "is_available must be function and return bool value!"
+      return validation_result
+    end
+    validation_result.is_success = true
     return validation_result
   end
-  validation_result.is_success = true
-  return validation_result
 end
 
 
+function M.run_task(task_container, reuse_builder_cache)
+  local task = task_container.task
+  local builder_result = task_container.builder_result_cache
 
-function M.run_task(task)
-  local validation_result = M.validiate_task(task)
-  if not validation_result.is_success then
-    return validation_result
-  end
-
-  local cmd = task.cmd
-  local env = task.env
-
-  if validation_result.builder_result then
-    cmd = validation_result.builder_result.cmd
-    env = validation_result.builder_result.env
+  if not reuse_builder_cache or not task_container.builder_result_cache then
+    local validation_result = M.validiate_task(task)
+    if not validation_result.is_success then
+      return validation_result
+    end
+    builder_result = validation_result.builder_result
+    task_container.builder_result_cache = builder_result
   end
 
   M.last_runned_task_name = task.name
   local bufnr = vim.api.nvim_create_buf(true, false)
   config.create_window_for_terminal(bufnr)
-  local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = env})
-  for _, command in ipairs(cmd) do
+  local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = builder_result.env})
+  for _, command in ipairs(builder_result.cmd) do
     vim.fn.chansend(job_id, { command, "" })
   end
   vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched"})
-  -- It throws error in some cases. Need to fix
   -- pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
-  return validation_result
+  return {is_success = true, error_msg = nil, builder_result = builder_result}
 end
 
 -- Reload all registered files with tasks and return task_container
-function M.get_task_by_name(name)
+function M.get_task_container_by_name(name)
   reload_registered_files_with_tasks()
   local task_container = loaded_tasks[name]
-  return task_container and task_container.task or nil
+  return task_container
 end
 
 return M

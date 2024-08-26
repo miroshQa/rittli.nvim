@@ -53,9 +53,35 @@ local M = {}
 
 M.tasks = {
     {
-        name = "List all the files and print hello",
-        cmd = {"ls -la", "echo $greeting"},
-        env = {greeting = "Hello"},
+        name = "List all the files and print Hello!",
+        builder = function() 
+            local task = {
+                cmd = {"ls -la", "echo $greeting"},
+                env = {greeting = "Hello"}
+            }
+
+            return task
+        end,
+    },
+    {
+        name = "Build and Run current CPP or C file",
+        builder = function()
+            vim.cmd("wa")
+            local cur_file = vim.fn.expand("%")
+            if vim.fn.isdirectory("build") == 0 then
+                vim.fn.mkdir("build")
+            end
+            -- See :help fnamemodify, :help filename-modifiers
+            local bin_name = vim.fn.fnamemodify(cur_file, ":t:r")
+            local compiler = vim.bo.filetype == "c" and "gcc" or "g++"
+            local task = {
+                cmd = {
+                    string.format("%s %s -o build/%s", compiler, cur_file, bin_name),
+                    string.format("./build/%s", bin_name)
+                },
+            }
+            return task
+        end,
     },
 }
 

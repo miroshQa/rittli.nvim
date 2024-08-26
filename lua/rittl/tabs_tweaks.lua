@@ -8,7 +8,7 @@ vim.api.nvim_create_autocmd("TabEnter", {
   callback = function()
     last_entered_tab = vim.api.nvim_win_get_tabpage(0)
     tabs_list_before_close = vim.api.nvim_list_tabpages()
-  end
+  end,
 })
 
 vim.api.nvim_create_autocmd("TabClosed", {
@@ -16,5 +16,5 @@ vim.api.nvim_create_autocmd("TabClosed", {
     if tabs_list_before_close[#tabs_list_before_close] ~= last_entered_tab then
       vim.cmd("tabp")
     end
-  end
+  end,
 })

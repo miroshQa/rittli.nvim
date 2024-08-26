@@ -31,30 +31,29 @@ local function set_last_task_for_cwd()
   end
 end
 
-
 initialize_last_runned_tasks()
 set_last_task_for_cwd()
 
 vim.api.nvim_create_autocmd("User", {
   pattern = "TaskLaunched",
-  group = vim.api.nvim_create_augroup("LastTasksPerDirCacher", {clear = true}),
+  group = vim.api.nvim_create_augroup("LastTasksPerDirCacher", { clear = true }),
   callback = function()
     last_tasks_name_per_dir[vim.uv.cwd()] = tasks_manager.last_runned_task_name
-  end
+  end,
 })
 
 if config.reload_last_task_when_cwd_changes then
   vim.api.nvim_create_autocmd("DirChanged", {
-    group = vim.api.nvim_create_augroup("UpdateLastTask", {clear = true}),
+    group = vim.api.nvim_create_augroup("UpdateLastTask", { clear = true }),
     callback = function()
       set_last_task_for_cwd()
-    end
+    end,
   })
 end
 
 vim.api.nvim_create_autocmd("VimLeave", {
-  group = vim.api.nvim_create_augroup("LastTasksSaveOnVimExit", {clear = true}),
+  group = vim.api.nvim_create_augroup("LastTasksSaveOnVimExit", { clear = true }),
   callback = function()
     serialize_last_runned_tasks()
-  end
+  end,
 })

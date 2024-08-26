@@ -1,7 +1,6 @@
 local config = require("rittl.config").config
 local task_manager = require("rittl.tasks.task_manager")
 
-
 -- see :help autocmd-pattern
 -- We need to dublicate code unfortunately
 local patterns = {
@@ -12,8 +11,8 @@ local patterns = {
 }
 
 vim.api.nvim_create_autocmd("DirChangedPre", {
-  pattern = {"window", "global"}, -- window pattern is required for NeoTree
-  group = vim.api.nvim_create_augroup("LocalTasksUpdater", {clear = true}),
+  pattern = { "window", "global" }, -- window pattern is required for NeoTree
+  group = vim.api.nvim_create_augroup("LocalTasksUpdater", { clear = true }),
   callback = function()
     local new_cwd = vim.v.event.directory
     local current_cwd = vim.uv.cwd()
@@ -28,9 +27,12 @@ vim.api.nvim_create_autocmd("DirChangedPre", {
 
     if not config.disable_local_tasks_updater_messages then
       ---@diagnostic disable-next-line: param-type-mismatch
-      vim.notify(string.format("Local tasks reloaded: New cwd: %s", vim.fn.fnamemodify(new_cwd, ":~")), vim.log.levels.INFO)
+      vim.notify(
+        string.format("Local tasks reloaded: New cwd: %s", vim.fn.fnamemodify(new_cwd, ":~")),
+        vim.log.levels.INFO
+      )
     end
-  end
+  end,
 })
 
 vim.api.nvim_create_autocmd("BufEnter", {
@@ -39,6 +41,5 @@ vim.api.nvim_create_autocmd("BufEnter", {
   callback = function(data)
     local file_path = data.match
     task_manager.register_file_with_tasks_for_update(file_path)
-  end
+  end,
 })
-

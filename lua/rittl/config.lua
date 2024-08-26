@@ -15,7 +15,7 @@ M.config = {
     local tab_bufnr = vim.fn.bufnr("%")
     vim.api.nvim_command("b " .. bufnr)
     vim.api.nvim_buf_delete(tab_bufnr, {})
-  end
+  end,
 }
 
 return M

@@ -1,4 +1,3 @@
-
 local M = {}
 
 function M.shrink_line(line, max_length)

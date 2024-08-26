@@ -1,20 +1,16 @@
 local M = {}
 
-
-local task_manager = require "rittl.tasks.task_manager"
+local task_manager = require("rittl.tasks.task_manager")
 local config = require("rittl.config").config
 local str_custom = require("rittl.utils.string_custom_functions")
 
-
-local pickers = require "telescope.pickers"
-local finders = require "telescope.finders"
+local finders = require("telescope.finders")
+local pickers = require("telescope.pickers")
 local conf = require("telescope.config").values
-local actions = require "telescope.actions"
-local action_state = require "telescope.actions.state"
-
+local action_state = require("telescope.actions.state")
+local actions = require("telescope.actions")
 
 local custom_actions = {}
-
 
 custom_actions.reuse_as_template = function(prompt_bufnr)
   local entry = action_state.get_selected_entry()
@@ -47,7 +43,6 @@ custom_actions.launch_the_picked_task = function(prompt_bufnr)
   end
 end
 
-
 local task_name_max_len = 15
 local function make_display(entry)
   if not config.show_file_path_in_telescope_picker then
@@ -60,7 +55,6 @@ local function make_display(entry)
 
   return task_name .. string.format("[%s]", file_path)
 end
-
 
 M.tasks_picker = function(opts)
   opts = opts or {}
@@ -76,13 +70,13 @@ M.tasks_picker = function(opts)
           filename = entry.task_source_file_path,
           lnum = entry.task_begin_line_number,
         }
-      end
+      end,
     }),
     previewer = conf.grep_previewer({}),
     sorter = conf.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
-      map({"i", "n"}, "<C-r>", custom_actions.reuse_as_template)
-      map({"i", "n"}, "<Enter>", custom_actions.launch_the_picked_task)
+      map({ "i", "n" }, "<C-r>", custom_actions.reuse_as_template)
+      map({ "i", "n" }, "<Enter>", custom_actions.launch_the_picked_task)
       return true
     end,
     on_complete = {
@@ -104,8 +98,8 @@ M.tasks_picker = function(opts)
           end
           i = i + 1
         end
-      end
-    }
+      end,
+    },
   })
   picker:find()
 end
@@ -118,7 +112,5 @@ M.run_last_runned_task = function(opts)
     M.tasks_picker(opts)
   end
 end
-
-
 
 return M

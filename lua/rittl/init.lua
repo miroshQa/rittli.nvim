@@ -13,8 +13,4 @@ function M.setup(opts)
   require("rittl.tasks")
 end
 
-
 return M
-
-
-

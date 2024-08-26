@@ -11,7 +11,6 @@ local terminals_enters_stack = {}
 --   }
 -- }
 
-
 local function keep_pop_until_find_existing_terminal()
   while #terminals_enters_stack ~= 0 do
     local enter_info = terminals_enters_stack[#terminals_enters_stack]
@@ -25,11 +24,10 @@ end
 local function register_terminal_enter()
   local openned_terminal_info = {
     openned_terminal_window_id = vim.fn.win_getid(),
-    openned_terminal_buffer_number = vim.fn.bufnr('%')
+    openned_terminal_buffer_number = vim.fn.bufnr("%"),
   }
   table.insert(terminals_enters_stack, openned_terminal_info)
 end
-
 
 function M.toggle_last_openned_terminal()
   keep_pop_until_find_existing_terminal()
@@ -37,14 +35,14 @@ function M.toggle_last_openned_terminal()
     -- Creating a buffer for which you need to create a window
     local bufnr = vim.api.nvim_create_buf(true, false)
     config.create_window_for_terminal(bufnr)
-    vim.fn.termopen(vim.o.shell, {detach = true})
+    vim.fn.termopen(vim.o.shell, { detach = true })
     return
   end
 
   local last_enter_info = terminals_enters_stack[#terminals_enters_stack]
   if last_enter_info.openned_terminal_window_id == vim.fn.win_getid() then
     vim.api.nvim_command("hide")
-  elseif vim.api.nvim_win_is_valid(last_enter_info.openned_terminal_window_id)  then
+  elseif vim.api.nvim_win_is_valid(last_enter_info.openned_terminal_window_id) then
     vim.fn.win_gotoid(last_enter_info.openned_terminal_window_id)
   else
     config.create_window_for_terminal(last_enter_info.openned_terminal_buffer_number)
@@ -59,7 +57,9 @@ vim.api.nvim_create_autocmd("TermOpen", {
     -- I definitely should read about main event-loop somewhere
     -- https://en.wikipedia.org/wiki/Event_loop
     -- :help event-loop
-    vim.schedule(function() vim.api.nvim_command("startinsert") end)
+    vim.schedule(function()
+      vim.api.nvim_command("startinsert")
+    end)
     vim.api.nvim_command("setlocal nonumber norelativenumber signcolumn=no")
     if config.should_register_terminal_enter() then
       register_terminal_enter()
@@ -67,11 +67,13 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 
-vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
-  group = vim.api.nvim_create_augroup("TerminalEnterRegistrator", {clear = true}),
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+  group = vim.api.nvim_create_augroup("TerminalEnterRegistrator", { clear = true }),
   callback = function()
     if vim.bo.filetype == "terminal" and config.should_register_terminal_enter() then
-      vim.schedule(function() vim.api.nvim_command("startinsert") end)
+      vim.schedule(function()
+        vim.api.nvim_command("startinsert")
+      end)
       register_terminal_enter()
     end
   end,

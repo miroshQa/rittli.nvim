@@ -1,6 +1,6 @@
-# 🥷 Rittl
+# 🥷 rittl.nvim
 
-🔥  Revolutionary and Intuitive Terminal Tasks Launcher with tight integration with telescope!
+Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integration! 🔥
 
 ![Preview](./demo/preview.png)
 
@@ -23,7 +23,7 @@ Install the plugin using lazy.nvim plugin manager:
 
 ```lua
  {
-   "miroshQa/Rittl",
+   "miroshQa/rittl.nvim",
    lazy = true,
    dependencies = {
      'nvim-telescope/telescope.nvim'
@@ -48,7 +48,7 @@ Install the plugin using lazy.nvim plugin manager:
 2. Create lua files what return lua table with the field "tasks", where your own tasks defined.
 
 ```lua
--- ~/user/.config/nvim/lua/tasks/some_tasks.lua 
+-- ~/.config/nvim/lua/tasks/some_tasks.lua 
 local M = {}
 
 M.tasks = {
@@ -132,7 +132,7 @@ return M
 
 
 ## ⚙️ Configuration
-You can check the default configuration [here](./lua/rittl.lua). To override default options, simply pass new values in the opts table
+You can check the default configuration [here](./lua/rittl/config.lua). To override default options, simply pass new values in the opts table
 ```lua
 opts = {
   folder_name_with_tasks = "MyTasks",

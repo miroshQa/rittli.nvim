@@ -17,6 +17,8 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
 
 *You can see some features preview [here](/demo/gallery.md)*
 
+## ❗Warning
+This plugin isn't ready yet! Breaking changes are expected.
 
 ## 📦 Installation
 Install the plugin using lazy.nvim plugin manager:

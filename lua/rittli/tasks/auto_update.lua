@@ -4,8 +4,8 @@ local task_manager = require("rittli.tasks.task_manager")
 -- see :help autocmd-pattern
 -- We need to dublicate code unfortunately
 local patterns = {
-  string.format("%s/lua/%s/*/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks),
-  string.format("%s/lua/%s/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks),
+  string.format("%s/%s/*/*.lua", config.global_tasks_dir_path_tail, config.folder_name_with_tasks),
+  string.format("%s/%s/*.lua", config.global_tasks_dir_path_tail, config.folder_name_with_tasks),
   string.format("%s/%s/*.lua", vim.uv.cwd(), config.folder_name_with_tasks),
   string.format("%s/%s/*/*.lua", vim.uv.cwd(), config.folder_name_with_tasks),
 }

@@ -2,7 +2,7 @@ local config = require("rittli.config").config
 local task_manager = require("rittli.tasks.task_manager")
 
 local global_tasks_glob_pattern =
-  string.format("%s/lua/%s/**/*.lua", vim.fn.stdpath("config"), config.folder_name_with_tasks)
+  string.format("%s/%s/**/*.lua", config.global_tasks_dir_path_tail, config.folder_name_with_tasks)
 local current_local_tasks_glob_pattern = string.format("%s/%s/**/*.lua", vim.uv.cwd(), config.folder_name_with_tasks)
 
 local function on_startup()

@@ -179,7 +179,7 @@ function M.run_task(task_container, reuse_builder_cache)
     vim.fn.chansend(job_id, { command, "" })
   end
   vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
-  -- pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
+  pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
   return { is_success = true, error_msg = nil, builder_result = builder_result }
 end
 

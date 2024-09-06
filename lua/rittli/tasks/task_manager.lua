@@ -16,11 +16,11 @@ local loaded_tasks = {}
 --   [name] = {  -- this 'name' key duplucate the task name
 --     task_source_file_path = string,
 --     task_begin_line_number = number,
---     builder_result_cache = table,
+--     cache = {}, -- we pass this table to the builder. Initially it is empty. See example in Readme
 --     task = {
 --       name = string,
 --       is_available = function,
---       builder = function()
+--       builder = function(cache)
 --          return {cmd = {string, string, ...}, env = {var1 = value, var2 = value, ...}}
 --        end,
 --     }
@@ -67,7 +67,7 @@ function M.load_tasks_from_file(file_path)
       task_source_file_path = file_path,
       task = task,
       task_begin_line_number = line_number,
-      builder_result_cache = nil,
+      cache = {},
     }
     loaded_tasks[task.name] = task_container
   end
@@ -128,14 +128,15 @@ function M.register_file_with_tasks_for_update(file_path)
   files_with_tasks_need_to_be_reloaded[file_path] = vim.uv.fs_stat(file_path).mtime
 end
 
-function M.validiate_task(task)
+function M.validiate_task_container(task_container)
+  local task = task_container.task
   local validation_result = { is_success = false, error_msg = nil, builder_result = nil }
 
   if not task.builder or type(task.builder) ~= "function" then
     validation_result.error_msg = "Builder must be a function!"
     return validation_result
   elseif task.builder then
-    validation_result.builder_result = task.builder()
+    validation_result.builder_result = task.builder(task_container.cache)
     if not validation_result.builder_result then
       validation_result.error_msg = "Builder must return lua table!"
       return validation_result
@@ -158,18 +159,18 @@ function M.validiate_task(task)
   end
 end
 
-function M.run_task(task_container, reuse_builder_cache)
+function M.run_task(task_container, must_clear_cache)
   local task = task_container.task
-  local builder_result = task_container.builder_result_cache
 
-  if not reuse_builder_cache or not task_container.builder_result_cache then
-    local validation_result = M.validiate_task(task)
-    if not validation_result.is_success then
-      return validation_result
-    end
-    builder_result = validation_result.builder_result
-    task_container.builder_result_cache = builder_result
+  if must_clear_cache then
+    task_container.cache = {}
   end
+
+  local validation_result = M.validiate_task_container(task_container)
+  if not validation_result.is_success then
+    return validation_result
+  end
+  local builder_result = validation_result.builder_result
 
   M.last_runned_task_name = task.name
   local bufnr = vim.api.nvim_create_buf(true, false)

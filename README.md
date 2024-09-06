@@ -6,19 +6,20 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
 
 
 ## ✨ Features
-- 🔭 Create tasks in lua. Pick them using Telescope and launch in the terminal
-- 📺 Task preview in telescope
+- 🔭 Create tasks in lua. Pick them using Telescope and launch in the *neovim* terminal
+- 👀 Task preview in telescope
 - 🤖 Tasks auto update (auto resource)
 - ⚡️ Built-in Neovim terminal improvements (Toggle the last openned terminal)
 - 🌎 Define local and global tasks
 - 👻 Reuse global tasks as template for local tasks
 - 🌟 Last tasks is rememberd for each directory
-
+- 🔥 Create tasks dynamically! (My favorite use: Write all buffers before launch)
+- 🧓 Cache the task if you want!
 
 *You can see some features preview [here](/demo/gallery.md)*
 
 ## ❗Warning
-This plugin isn't ready yet! Breaking changes are expected.
+This plugin isn't ready yet! Breaking changes are expected and the documentation may not be complete
 
 ## 📦 Installation
 Install the plugin using lazy.nvim plugin manager:
@@ -67,25 +68,26 @@ M.tasks = {
   },
   {
     name = "Build and Run current CPP or C file with Args",
-    builder = function()
+    builder = function(cache)
       vim.cmd("wa")
+      if vim.fn.isdirectory("build") == 0 then vim.fn.mkdir("build") end
+
+      local task = {}
       local cur_file = vim.fn.expand("%")
-      if vim.fn.isdirectory("build") == 0 then
-        vim.fn.mkdir("build")
-      end
-      -- See :help fnamemodify, :help filename-modifiers
       local bin_name = vim.fn.fnamemodify(cur_file, ":t:r")
       local compiler = vim.bo.filetype == "c" and "gcc" or "g++"
-      local args = vim.fn.input({prompt = "Enter exe arguments: "})
-      local task = {
-        cmd = {
-          string.format("%s %s -o build/%s", compiler, cur_file, bin_name),
-          string.format("./build/%s %s", bin_name, args)
-        },
+      if not cache.args then
+        cache.args = vim.fn.input({prompt = "Enter exe arguments: "})
+        -- Launch this task pressing leader + R to clear cache
+      end
+
+      task.cmd = {
+        string.format("%s %s -o build/%s", compiler, cur_file, bin_name),
+        string.format("./build/%s %s", bin_name, cache.args)
       }
       return task
     end,
-  },
+  }
 }
 
 return M

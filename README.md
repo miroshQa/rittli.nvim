@@ -18,11 +18,10 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
 
 *You can see some features preview [here](/demo/gallery.md)*
 
-## ❗Warning
-This plugin isn't ready yet! Breaking changes are expected and the documentation may not be complete
 
-## 📦 Installation
-Install the plugin using lazy.nvim plugin manager:
+## 🚀 Tutorial
+### 0. Installation 🔴
+1. Install the plugin using lazy.nvim plugin manager:
 
 ```lua
  {
@@ -40,13 +39,14 @@ Install the plugin using lazy.nvim plugin manager:
    },
    opts = {},
  }
-
- -- You also need telescope to be installed
 ```
 
+> [!NOTE]  
+> - This tutorial is supposed to go through it step by step  
+> - This tutorial assumes that you are using default opts and the suggested keymaps above
 
-## 🚀 Tutorial
-### 1. Create global tasks
+
+### 1. Create global tasks 🟡
 1. Create "tasks" folder inside your user configuration directory in the "lua" folder.  
 2. Create lua files what return lua table with the field "tasks", where your own tasks defined.
 
@@ -94,46 +94,76 @@ return M
 
 ```
 
-**Notes:**
-- Global tasks will be available everywhere
-- File loads and updates recursively. You can create other folders in "tasks" directory and create lua files with tasks there!
+> [!NOTE]  
+> - Global tasks will be available everywhere  
+> - File loads and updates recursively. You can create other folders in "tasks" directory and create lua files with tasks there!  
 
 
-### 2. Launch tasks
+### 2. Launch tasks 🟢
 1. Press "leader + r" to open telescope tasks picker.
 2. Select the desired task and launch it by pressing "Enter".
 
-**Notes:**:
-- You can hide the terminal (opened on launch in new tab) and open again using "ctrl + t"
+> [!NOTE]  
+> - You can hide the terminal (opened on launch in new tab) and open again using "ctrl + t"  
+> - You can close hide the terminal, simply type "exit" in the shell or press "ctrl + d"  
+> - If you press "leader + r" again it will rerun the last task instead openning telescope picker  
 
 
-### 3. Launch multiple tasks
+### 3. Launch multiple tasks 💦
 1. Hide the terminal with the task you have launched by pressing "ctrl + t.
-2. Press "leader + r" again, pick a new task and launch.
-3. In the same way you can launch how many tasks as you want!
-4. To open one of these opened and then hidden terminals, press "leader + leader", select the desired terminal and press "ctrl + t"
+2. Press "leader + R" again, pick a new task and launch.
+3. Launch how many tasks as you want!
 
-**Notes:**
-- You can CLOSE (not hide) the terminal, simply type "exit" in the shell or press "ctrl + d" and press any key in insert mode
+> [!NOTE]  
+> - To open one of these opened and then hidden terminals, press "leader + leader", select the desired terminal and press "ctrl + t"  
 
-### 4. Edit tasks
-1. Open the Telescope tasks picker (press "leader + r") and select the desired task.      
+### 4. Edit tasks 🔨
+1. Open the Telescope tasks picker (press "leader + R") and select the desired task.      
 2. Press "ctrl + t" to open a buffer with the task in a new tab and edit it
-3. When you open Telescope tasks picker again, your tasks will be updated, and you will receive a correspionding notification about that
+3. When you open Telescope tasks picker again or rerun the last task, your tasks will be updated, and you will receive a notification about that
 
-**Notes:**
-- Tabs? Buffers? Windows? Wtf is that? If so, it is highly recommended to read [this](https://betterprogramming.pub/50-vim-mode-tips-for-ide-users-f7b525a794b3#:~:text=colorless%20diff%20command.-,67.%20Vim%20tabs,-It%20must%20be) (section 67) and watch [this](https://www.youtube.com/watch?v=_6OqJrdbfs0&t=221s) video
+> [!NOTE]  
+> - Tabs? Buffers? Windows? Wtf is that? If so, it is highly recommended to read [this](https://betterprogramming.pub/50-vim-mode-tips-for-ide-users-f7b525a794b3#:~:text=colorless%20diff%20command.-,67.%20Vim%20tabs,-It%20must%20be) (section 67) and watch [this](https://www.youtube.com/watch?v=_6OqJrdbfs0&t=221s) video
 
-### 5. Create local tasks
+### 5. Create local tasks 👻
 1. Create a folder in your current working directory named "tasks" and add lua files with tasks as usual
 
-**Notes:**
-- If the local task has the same name as global task, then the local task will override the global task (task from local directory will be used)
+> [!NOTE]  
+> - If the local task has the same name as global task, then the local task will override the global task (task from local directory will be used)
 
-### 6. Reuse global tasks as template for local tasks
+### 6. Reuse global tasks as template for local tasks 🔁
 1. Open the Telescope tasks picker, select the task you want to reuse, and press "ctrl + r". This will clone the file containing this task into your local tasks folder (or create it if it doesn't exist yet) and open it in a new buffer
 2. Edit newly cloned file as you want, add new tasks. When you open tasks picker again, all tasks from this file will be loaded!
 
+### 7. Hide tasks in the telescope picker depending on the condition 👮
+```lua
+-- ~/.config/nvim/lua/tasks/rust.lua
+local M = {}
+
+-- You can define the "is_available" property for the whole module. All tasks will inherit it
+M.is_available = function() return vim.fn.filereadable("Cargo.toml") == 1 end
+
+M.tasks = {
+  {
+    name = "RUST: Cargo run",
+    builder = function()
+      vim.cmd("wa")
+      return { cmd = {"cargo run"} }
+    end,
+  },
+  {
+    name = "C#: Dotnet run",
+    -- You can also override the "is_available" for a specific task
+    is_available = function() return vim.bo.filetype == "cs" end,
+    builder = function()
+      return {cmd = "dotnet run"}
+    end,
+  }
+}
+
+return M
+
+```
 
 ## ⚙️ Configuration
 You can check the default configuration [here](./lua/rittli/config.lua). To override default options, simply pass new values in the opts table
@@ -145,9 +175,3 @@ opts = {
 ```
 
 *You can find some configuration recipes [here](/demo/configuration-recipes.md)*
-
-
-## ❔ Explanation
-What this plugin does and why is it called like that?   
-IN PROGRESS...
-

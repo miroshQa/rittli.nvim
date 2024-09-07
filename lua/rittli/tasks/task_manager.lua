@@ -175,10 +175,14 @@ function M.run_task(task_container, must_clear_cache)
   M.last_runned_task_name = task.name
   local bufnr = vim.api.nvim_create_buf(true, false)
   config.create_window_for_terminal(bufnr)
-  local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = builder_result.env })
+  local job_id = vim.fn.termopen(vim.o.shell, { detach = true, env = builder_result.env})
+
+  vim.wait(50, function() return false end) -- this line is required to fix commands being duplicated. I don't know why this works  :)
   for _, command in ipairs(builder_result.cmd) do
     vim.fn.chansend(job_id, { command, "" })
   end
+
+  vim.schedule(function() vim.cmd("startinsert") end)
   vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
   pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
   return { is_success = true, error_msg = nil, builder_result = builder_result }

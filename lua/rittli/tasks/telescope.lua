@@ -19,14 +19,15 @@ custom_actions.reuse_as_template = function(prompt_bufnr)
     vim.fn.mkdir(path_to_folder_with_tasks)
   end
 
-  local copy_to = path_to_folder_with_tasks .. vim.fs.basename(entry.filename)
+  actions.close(prompt_bufnr)
+  local template_name = vim.fn.input({prompt = "Enter template name"})
+  local copy_to = path_to_folder_with_tasks .. template_name .. ".lua"
   if vim.fn.filereadable(copy_to) == 1 then
-    vim.notify("ABORT: This template already exists!", vim.log.levels.ERROR)
+    vim.notify("ABORT: File with this name already exists!", vim.log.levels.ERROR)
     return
   end
 
   vim.uv.fs_copyfile(entry.filename, copy_to)
-  actions.close(prompt_bufnr)
   vim.cmd(string.format("edit %s", copy_to))
   vim.cmd(string.format("%s", entry.lnum))
 end
@@ -43,19 +44,6 @@ custom_actions.launch_the_picked_task = function(prompt_bufnr)
   end
 end
 
-local task_name_max_len = 15
-local function make_display(entry)
-  if not config.show_file_path_in_telescope_picker then
-    return entry.task.name
-  end
-
-  local task_name = str_custom.shrink_line(entry.task.name, task_name_max_len)
-  task_name = str_custom.justify_str_left(task_name, task_name_max_len + 5, " ")
-  local file_path = vim.fn.fnamemodify(entry.task_source_file_path, ":~")
-
-  return task_name .. string.format("[%s]", file_path)
-end
-
 M.tasks_picker = function(opts)
   opts = opts or {}
   local picker = pickers.new(opts, {
@@ -65,7 +53,7 @@ M.tasks_picker = function(opts)
       entry_maker = function(entry)
         return {
           value = entry,
-          display = make_display(entry),
+          display = config.make_entry_display(entry),
           ordinal = entry.task.name,
           filename = entry.task_source_file_path,
           lnum = entry.task_begin_line_number,

@@ -23,7 +23,7 @@ M.config = {
     return task_name .. string.format("[%s]", file_path)
   end,
 
-  terminal_provider = terminal_provider,
+  terminal_provider = require("rittli.tasks.terminal_providers.wezterm"),
 }
 
 return M

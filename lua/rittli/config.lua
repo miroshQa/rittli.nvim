@@ -1,3 +1,5 @@
+local terminal_provider = require("rittli.tasks.terminal_providers.neovim")
+
 local M = {}
 
 ---@class Rittli.Config
@@ -8,19 +10,8 @@ M.config = {
   disable_resource_messages = false,
   disable_local_tasks_updater_messages = false,
 
-  should_register_terminal_enter = function()
-    return vim.fn.expand("%") ~= "NeogitConsole"
-  end,
-
   remember_last_task = true,
   reload_last_task_when_cwd_changes = true,
-
-  create_window_for_terminal = function(bufnr)
-    vim.cmd("tabnew")
-    local tab_bufnr = vim.fn.bufnr("%")
-    vim.api.nvim_command("b " .. bufnr)
-    vim.api.nvim_buf_delete(tab_bufnr, {})
-  end,
 
   make_entry_display = function(entry)
     local str_custom = require("rittli.utils.string_custom_functions")
@@ -30,8 +21,9 @@ M.config = {
     local file_path = vim.fn.fnamemodify(entry.task_source_file_path, ":~")
 
     return task_name .. string.format("[%s]", file_path)
-  end
+  end,
 
+  terminal_provider = terminal_provider,
 }
 
 return M

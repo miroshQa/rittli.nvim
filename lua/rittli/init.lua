@@ -8,8 +8,6 @@ local config = require("rittli.config")
 
 function M.setup(opts)
   config.config = vim.tbl_deep_extend("force", {}, config.config, opts or {})
-  require("rittli.terminal_tweaks")
-  require("rittli.tab_tweaks")
   require("rittli.tasks")
 end
 

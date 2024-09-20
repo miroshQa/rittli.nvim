@@ -1,35 +1,22 @@
 local config = require("rittli.config").config
+local Task = require("rittli.tasks.Task")
 
--- This whole module (file) il like a class and in this table below I define public methods or fields
+-- This whole module (file) il like a class and in this table below I define public / private methods or fields
 local M = {}
 
--- This is a private field of this imaginable class
-local files_with_tasks_need_to_be_reloaded = {}
-
--- This is a public field of our class (getter and setter is too excessive in this case)
--- Store name (not task itself) is less less buggy
 M.last_runned_task_name = ""
 
+local files_with_tasks_need_to_be_reloaded = {}
+
+---@type table<string, {task: Task, terminal_handler: ITerminalHandler? }>
+---First table parameter is the task name. If terminal handler isn't nil that means that this task
+---**MAY BE** still active and we can send commands (instead creating new terminal)
 local loaded_tasks = {}
--- THIS TABLE CONTAINS TASK CONTAINERS AS BELOW
--- local loaded_tasks = {
---   [name] = {  -- this 'name' key duplucate the task name
---     task_source_file_path = string,
---     task_begin_line_number = number,
---     cache = {}, -- we pass this table to the builder. Initially it is empty. See example in Readme
---     task = {
---       name = string,
---       is_available = function,
---       builder = function(cache)
---          return {cmd = {string, string, ...}, env = {var1 = value, var2 = value, ...}}
---        end,
---     }
---   }
--- }
 
 function M.clear_tasks_loaded_from_file(file_path)
   for key, value in pairs(loaded_tasks) do
-    if value.task_source_file_path == file_path then
+    local task = value.task
+    if task.task_source_file_path == file_path then
       loaded_tasks[key] = nil
     end
   end
@@ -44,6 +31,9 @@ end
 local is_available_default = function()
   return true
 end
+
+---@param file_path string
+---@return boolean is_success
 function M.load_tasks_from_file(file_path)
   local is_success, module_with_tasks = pcall(dofile, file_path)
   if not is_success or not module_with_tasks or not module_with_tasks.tasks then
@@ -54,26 +44,24 @@ function M.load_tasks_from_file(file_path)
   local line_number = 0
   local is_available_default_for_file = module_with_tasks.is_available or is_available_default
 
-  for _, task in ipairs(module_with_tasks.tasks) do
-    task.is_available = task.is_available or is_available_default_for_file
+  for _, raw_task in ipairs(module_with_tasks.tasks) do
+    raw_task.is_available = raw_task.is_available or is_available_default_for_file
     for line in file_with_tasks_lines do
       line_number = line_number + 1
-      if string.find(line, task.name) then
+      if string.find(line, raw_task.name) then
         break
       end
     end
 
-    local task_container = {
-      task_source_file_path = file_path,
-      task = task,
-      task_begin_line_number = line_number,
-      cache = {},
+    loaded_tasks[raw_task.name] = {
+      task = Task:new(raw_task, file_path, line_number),
     }
-    loaded_tasks[task.name] = task_container
   end
+
   return true
 end
 
+---@param files string[]
 function M.load_tasks_from_files(files)
   for _, file_path in ipairs(files) do
     local is_success = M.load_tasks_from_file(file_path)
@@ -84,6 +72,7 @@ function M.load_tasks_from_files(files)
   end
 end
 
+---@param file_path string
 function M.update_tasks_from_file(file_path)
   M.clear_tasks_loaded_from_file(file_path)
   local is_success = M.load_tasks_from_file(file_path)
@@ -91,7 +80,6 @@ function M.update_tasks_from_file(file_path)
     return
   end
 
-  --WARNING: This should return {is_success = boolen, error_msg = string} instead printing (for unit testing, etc..)
   if not is_success then
     vim.notify(string.format("Unable to reload: %s", vim.fn.fnamemodify(file_path, ":~")), vim.log.levels.ERROR)
   else
@@ -99,7 +87,7 @@ function M.update_tasks_from_file(file_path)
   end
 end
 
-local function reload_registered_files_with_tasks()
+function M.reload_registered_files_with_tasks()
   for file_path, old_mtime in pairs(files_with_tasks_need_to_be_reloaded) do
     local curr_mtime = vim.uv.fs_stat(file_path).mtime
     if curr_mtime.sec ~= old_mtime.sec or curr_mtime.nsec ~= old_mtime.nsec then
@@ -109,16 +97,17 @@ local function reload_registered_files_with_tasks()
   end
 end
 
-function M.collect_task_containers()
+function M.collect_tasks()
   local tasks = {}
-  reload_registered_files_with_tasks()
-  for _, task_container in pairs(loaded_tasks) do
-    if type(task_container.task.is_available) ~= "function" or task_container.task.is_available() then
-      table.insert(tasks, task_container)
+  M.reload_registered_files_with_tasks()
+  for _, value in pairs(loaded_tasks) do
+    local task = value.task
+    if task.is_available() then
+      table.insert(tasks, task)
     end
   end
   table.sort(tasks, function(a, b)
-    return a.task.name < b.task.name
+    return a.name < b.name
   end)
   return tasks
 end
@@ -128,67 +117,28 @@ function M.register_file_with_tasks_for_update(file_path)
   files_with_tasks_need_to_be_reloaded[file_path] = vim.uv.fs_stat(file_path).mtime
 end
 
-function M.validiate_task_container(task_container)
-  local task = task_container.task
-  local validation_result = { is_success = false, error_msg = nil, builder_result = nil }
-
-  if not task.builder or type(task.builder) ~= "function" then
-    validation_result.error_msg = "Builder must be a function!"
-    return validation_result
-  elseif task.builder then
-    validation_result.builder_result = task.builder(task_container.cache)
-    if not validation_result.builder_result then
-      validation_result.error_msg = "Builder must return lua table!"
-      return validation_result
-    end
-    cmd = validation_result.builder_result.cmd
-    env = validation_result.builder_result.env
-
-    if env and (type(env) ~= "table" or next(env) == nil) then
-      validation_result.error_msg = "Env variable must be no empty table or nil!"
-      return validation_result
-    elseif type(cmd) ~= "table" then
-      validation_result.error_msg = "CMD field must be table!"
-      return validation_result
-    elseif type(task.is_available) ~= "function" then
-      validation_result.error_msg = "is_available must be function and return bool value!"
-      return validation_result
-    end
-    validation_result.is_success = true
-    return validation_result
-  end
-end
-
-function M.run_task(task_container, must_clear_cache)
-  local task = task_container.task
-
-  if must_clear_cache then
-    task_container.cache = {}
+---@param task_name string
+function M.run_task_by_name(task_name)
+  M.reload_registered_files_with_tasks()
+  if not loaded_tasks[task_name] then
+    return false
+  elseif not loaded_tasks[task_name].terminal_handler then
+    local task = loaded_tasks[task_name].task
+    local terminal_handler = task:launch(config.terminal_provider)
+    loaded_tasks[task_name] = {
+      task = loaded_tasks[task_name].task,
+      terminal_handler = terminal_handler,
+    }
+  else
+    local data = loaded_tasks[task_name]
+    local terminal_handler = data.terminal_handler
+    data.task:rerun(terminal_handler)
   end
 
-  local validation_result = M.validiate_task_container(task_container)
-  if not validation_result.is_success then
-    return validation_result
-  end
-  local builder_result = validation_result.builder_result
-
-  M.last_runned_task_name = task.name
-  local terminal_handler = config.terminal_provider.create({env = builder_result.env})
-
-  for _, command in ipairs(builder_result.cmd) do
-    terminal_handler.execute_command(command)
-  end
-
+  M.last_runned_task_name = task_name
   vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
-  pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
-  return { is_success = true, error_msg = nil, builder_result = builder_result }
-end
-
--- Reload all registered files with tasks and return task_container
-function M.get_task_container_by_name(name)
-  reload_registered_files_with_tasks()
-  local task_container = loaded_tasks[name]
-  return task_container
+  -- pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
+  return true
 end
 
 return M

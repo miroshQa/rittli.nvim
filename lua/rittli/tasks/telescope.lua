@@ -35,13 +35,14 @@ end
 custom_actions.launch_the_picked_task = function(prompt_bufnr)
   local selection = action_state.get_selected_entry()
   actions.close(prompt_bufnr)
-  local task_container = selection.value
-  local launch_result = task_manager.run_task(task_container, true)
-  if not launch_result.is_success then
-    vim.notify(string.format("ABORT: %s", launch_result.error_msg), vim.log.levels.ERROR)
-    vim.cmd("Telescope resume")
-    return true
-  end
+  ---@type Task
+  local task = selection.value
+  local launch_result = task_manager.run_task_by_name(task.name)
+  -- if not launch_result.is_success then
+  --   vim.notify(string.format("ABORT: %s", launch_result.error_msg), vim.log.levels.ERROR)
+  --   vim.cmd("Telescope resume")
+  --   return true
+  -- end
 end
 
 M.tasks_picker = function(opts)
@@ -49,14 +50,22 @@ M.tasks_picker = function(opts)
   local picker = pickers.new(opts, {
     prompt_title = "SelectTaskToLaunch",
     finder = finders.new_table({
-      results = task_manager.collect_task_containers(),
-      entry_maker = function(entry)
+      results = task_manager.collect_tasks(),
+      entry_maker = function(task)
         return {
-          value = entry,
-          display = config.make_entry_display(entry),
-          ordinal = entry.task.name,
-          filename = entry.task_source_file_path,
-          lnum = entry.task_begin_line_number,
+          value = task,
+          display = function()
+            local str_custom = require("rittli.utils.string_custom_functions")
+            local task_name_max_len = 15
+            local task_name = str_custom.shrink_line(task.name, task_name_max_len)
+            task_name = str_custom.justify_str_left(task_name, task_name_max_len + 5, " ")
+            local file_path = vim.fn.fnamemodify(task.task_source_file_path, ":~")
+
+            return task_name .. string.format("[%s]", file_path)
+          end,
+          ordinal = task.name,
+          filename = task.task_source_file_path,
+          lnum = task.task_begin_line_number,
         }
       end,
     }),
@@ -80,7 +89,7 @@ M.tasks_picker = function(opts)
 
         local i = 1
         for entry in picker.manager:iter() do
-          if entry.value.task.name == last_runned_task_name then
+          if entry.value.name == last_runned_task_name then
             picker:set_selection(picker:get_row(i))
             return
           end

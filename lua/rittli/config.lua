@@ -1,4 +1,8 @@
 local terminal_provider = require("rittli.tasks.terminal_providers.neovim")
+local wezterm = require("rittli.tasks.terminal_providers.wezterm")
+require("rittli.types")
+
+local NeovimTabProvider = terminal_provider.CreateTabProvider()
 
 local M = {}
 
@@ -13,17 +17,7 @@ M.config = {
   remember_last_task = true,
   reload_last_task_when_cwd_changes = true,
 
-  make_entry_display = function(entry)
-    local str_custom = require("rittli.utils.string_custom_functions")
-    local task_name_max_len = 15
-    local task_name = str_custom.shrink_line(entry.task.name, task_name_max_len)
-    task_name = str_custom.justify_str_left(task_name, task_name_max_len + 5, " ")
-    local file_path = vim.fn.fnamemodify(entry.task_source_file_path, ":~")
-
-    return task_name .. string.format("[%s]", file_path)
-  end,
-
-  terminal_provider = require("rittli.tasks.terminal_providers.wezterm"),
+  terminal_provider = wezterm.TabProvider(),
 }
 
 return M

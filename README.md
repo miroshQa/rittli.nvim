@@ -33,8 +33,8 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
    keys = {
      { "<C-t>",     function() require("rittli.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" }},
      {"<Esc><Esc>", "<C-\\><C-n>", mode = "t"},
-     { "<leader>r", function() require("rittli.tasks.telescope").run_last_runned_task() end, desc = "Rerun the last task or pick a new one" },
-     { "<leader>R", function() require("rittli.tasks.telescope").tasks_picker() end, desc = "Pick the task" },
+     { "<leader>r", function() require("rittli.core.telescope").run_last_runned_task() end, desc = "Rerun the last task or pick a new one" },
+     { "<leader>R", function() require("rittli.core.telescope").tasks_picker() end, desc = "Pick the task" },
      { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
    },
    ---@type Rittli.Config

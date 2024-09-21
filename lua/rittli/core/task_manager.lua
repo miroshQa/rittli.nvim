@@ -1,5 +1,5 @@
 local config = require("rittli.config").config
-local Task = require("rittli.tasks.Task")
+local Task = require("rittli.core.Task")
 
 -- This whole module (file) il like a class and in this table below I define public / private methods or fields
 local M = {}

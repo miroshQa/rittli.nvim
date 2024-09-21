@@ -1,5 +1,5 @@
 local config = require("rittli.config").config
-local task_manager = require("rittli.tasks.task_manager")
+local task_manager = require("rittli.core.task_manager")
 
 local global_tasks_glob_pattern =
   string.format("%s/%s/**/*.lua", config.global_tasks_dir_path_tail, config.folder_name_with_tasks)
@@ -13,8 +13,8 @@ end
 on_startup()
 
 -- Enable additional (not necessary) modules
-require("rittli.tasks.auto_update")
+require("rittli.core.auto_update")
 
 if config.remember_last_task then
-  require("rittli.tasks.last_task_cacher")
+  require("rittli.core.last_task_cacher")
 end

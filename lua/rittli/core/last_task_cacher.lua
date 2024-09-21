@@ -1,6 +1,6 @@
-local tasks_manager = require("rittli.tasks.task_manager")
+local tasks_manager = require("rittli.core.task_manager")
 local config = require("rittli.config").config
-local telescope_launcher = require("rittli.tasks.telescope")
+local telescope_launcher = require("rittli.core.telescope")
 
 local cache_file_path = vim.fn.stdpath("cache") .. "/last_tasks_cache.json"
 local last_tasks_name_per_dir = {}

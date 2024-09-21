@@ -3,7 +3,7 @@ local M = {}
 M.last_runned_task_name = ""
 
 
-local task_manager = require("rittli.tasks.task_manager")
+local task_manager = require("rittli.core.task_manager")
 local config = require("rittli.config").config
 local str_custom = require("rittli.utils.string_custom_functions")
 
@@ -111,6 +111,7 @@ end
 function M.launch_task(task)
   if task.last_terminal_handler and task.last_terminal_handler.is_alive() then
     task:rerun(task.last_terminal_handler)
+    task.last_terminal_handler.focus()
     M.last_runned_task_name = task.name
     vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
   else

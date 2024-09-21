@@ -1,5 +1,5 @@
-local neovim = require("rittli.tasks.terminal_providers.neovim")
-local wezterm = require("rittli.tasks.terminal_providers.wezterm")
+local neovim = require("rittli.core.terminal_providers.neovim")
+local wezterm = require("rittli.core.terminal_providers.wezterm")
 require("rittli.types")
 
 local M = {}

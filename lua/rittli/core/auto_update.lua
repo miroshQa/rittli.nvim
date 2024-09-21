@@ -1,5 +1,5 @@
 local config = require("rittli.config").config
-local task_manager = require("rittli.tasks.task_manager")
+local task_manager = require("rittli.core.task_manager")
 
 -- see :help autocmd-pattern
 -- We need to dublicate code unfortunately

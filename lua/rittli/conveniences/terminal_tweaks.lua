@@ -1,4 +1,5 @@
 local neovim_terminal_provider = require("rittli.core.terminal_providers.neovim").CreateTabProvider()
+local config = require("rittli.config").config
 local utils = require("rittli.utils.other")
 
 local M = {}
@@ -82,7 +83,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   group = vim.api.nvim_create_augroup("TerminalEnterRegistrator", { clear = true }),
   callback = function()
-    if vim.bo.filetype == "terminal" then
+    if vim.bo.filetype == "terminal" and config.conveniences.should_register_terminal_enter() then
       vim.schedule(function()
         vim.api.nvim_command("startinsert")
       end)

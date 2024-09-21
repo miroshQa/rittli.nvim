@@ -17,6 +17,12 @@ M.config = {
 
   terminal_provider = neovim.CreateTabProvider(),
 
+  conveniences = {
+    enable = true,
+    should_register_terminal_enter = function()
+      return vim.fn.expand("%") ~= "NeogitConsole"
+    end,
+  },
 }
 
 return M

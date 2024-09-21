@@ -1,8 +1,6 @@
-local terminal_provider = require("rittli.tasks.terminal_providers.neovim")
+local neovim = require("rittli.tasks.terminal_providers.neovim")
 local wezterm = require("rittli.tasks.terminal_providers.wezterm")
 require("rittli.types")
-
-local NeovimTabProvider = terminal_provider.CreateTabProvider()
 
 local M = {}
 
@@ -17,7 +15,7 @@ M.config = {
   remember_last_task = true,
   reload_last_task_when_cwd_changes = true,
 
-  terminal_provider = wezterm.TabProvider(),
+  terminal_provider = neovim.CreateSplitProvider(),
 }
 
 return M

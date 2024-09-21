@@ -2,7 +2,7 @@
 ---@field create fun(opts: { env: table<string, string> }): ITerminalHandler
 
 ---@class ITerminalHandler
----@field focus fun(): boolean
+---@field focus fun(): nil
 ---@field is_alive fun(): boolean
 ---@field execute_command fun(cmd: string): nil
 

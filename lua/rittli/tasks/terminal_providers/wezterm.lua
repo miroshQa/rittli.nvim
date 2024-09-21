@@ -1,6 +1,9 @@
 local M = {}
 
-local function TerminalHandler(info)
+---@param pane_id string
+---@return WeztermTerminalHandler
+local function TerminalHandler(pane_id)
+  ---@class WeztermTerminalHandler: ITerminalHandler
   local terminal_handler = {}
 
   terminal_handler.execute_command = function(command)
@@ -9,46 +12,47 @@ local function TerminalHandler(info)
       "cli",
       "send-text",
       "--pane-id",
-      info.pane_id,
+      pane_id,
       "--no-paste",
       command .. "\n",
     }
     vim.system(cmd):wait()
   end
 
-  terminal_handler.focus = function() end
+  terminal_handler.focus = function()
+    vim.system({"wezterm", "cli", "activate-pane", "--pane-id", pane_id}):wait()
+  end
+
+  terminal_handler.is_alive = function()
+    -- I pick just random subcommand without any side effect
+    local obj = vim.system({"wezterm", "cli", "get-pane-direction", "--pane-id", pane_id "Next"}):wait()
+    return obj.code == 0
+  end
 
   return terminal_handler
 end
 
-M.TabProvider = function(opts)
-  ---@class WeztermTabProvider
+local function CreateWeztermProvider(cmd)
+  ---@class WeztermTerminalProvider
   local tab_provider = {}
 
   tab_provider.create = function()
-    local pane_id = ""
-    local function catch_pane_id(obj)
-      pane_id = string.gsub(obj.stdout, "\n$", "")
-    end
-    local obj = vim.system({ "wezterm", "cli", "spawn" }, {}, catch_pane_id):wait()
-    return TerminalHandler({ pane_id = pane_id })
+    local obj = vim.system(cmd, {}):wait()
+    local pane_id = string.gsub(obj.stdout, "\n$", "")
+    return TerminalHandler(pane_id)
   end
 
   return tab_provider
 end
 
-M.SplitProvider = function(opts)
-  local split_provider = {}
 
-  split_provider.create = function(opts)
-    local pane_id = ""
-    local function catch_pane_id(obj)
-      pane_id = string.gsub(obj.stdout, "\n$", "")
-    end
-
-    local obj = vim.system({ "wezterm", "cli", "split-pane" }, {}, catch_pane_id):wait()
-    return TerminalHandler({ pane_id = pane_id })
-  end
+function M.CreateTabProvider()
+  return CreateWeztermProvider({"wezterm", "cli", "spawn"})
 end
+
+function M.CreateSplitProvider()
+  return CreateWeztermProvider({"wezterm", "cli", "split-pane"})
+end
+
 
 return M

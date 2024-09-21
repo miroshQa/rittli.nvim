@@ -15,7 +15,8 @@ M.config = {
   remember_last_task = true,
   reload_last_task_when_cwd_changes = true,
 
-  terminal_provider = neovim.CreateFullScreenProvider(),
+  terminal_provider = neovim.CreateTabProvider(),
+
 }
 
 return M

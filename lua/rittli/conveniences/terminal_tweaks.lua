@@ -1,4 +1,4 @@
-local neovim_terminal_provider = require("rittli.tasks.terminal_providers.neovim").CreateFullScreenProvider()
+local neovim_terminal_provider = require("rittli.tasks.terminal_providers.neovim").CreateTabProvider()
 
 local M = {}
 
@@ -50,8 +50,7 @@ function M.toggle_last_openned_terminal()
   if vim.api.nvim_win_is_valid(last_enter_info.winid) then
     vim.fn.win_gotoid(last_enter_info.winid)
   else
-    vim.print(last_enter_info.window_config)
-      vim.api.nvim_open_win(last_enter_info.bufnr, true, last_enter_info.window_config)
+    vim.api.nvim_open_win(last_enter_info.bufnr, true, last_enter_info.window_config)
   end
 end
 

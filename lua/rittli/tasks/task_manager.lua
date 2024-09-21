@@ -132,4 +132,8 @@ function M.run_task_by_name(task_name)
   return true
 end
 
+function M.get_task_by_name(task_name)
+  return loaded_tasks[task_name]
+end
+
 return M

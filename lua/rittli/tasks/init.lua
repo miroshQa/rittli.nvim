@@ -13,8 +13,8 @@ end
 on_startup()
 
 -- Enable additional (not necessary) modules
--- require("rittli.tasks.auto_update")
---
--- if config.remember_last_task then
---   require("rittli.tasks.last_task_cacher")
--- end
+require("rittli.tasks.auto_update")
+
+if config.remember_last_task then
+  require("rittli.tasks.last_task_cacher")
+end

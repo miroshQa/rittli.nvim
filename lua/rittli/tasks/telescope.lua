@@ -102,10 +102,8 @@ M.tasks_picker = function(opts)
 end
 
 M.run_last_runned_task = function(opts)
-  local last_task_container = task_manager.get_task_container_by_name(task_manager.last_runned_task_name)
-  if last_task_container then
-    task_manager.run_task(last_task_container, false)
-  else
+  local task_name = task_manager.last_runned_task_name
+  if not task_name or not task_manager.run_task_by_name(task_name) then
     M.tasks_picker(opts)
   end
 end

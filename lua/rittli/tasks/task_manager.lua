@@ -118,11 +118,12 @@ function M.run_task_by_name(task_name)
   local task = loaded_tasks[task_name]
   if not task then
     return false
-  elseif not task.last_terminal_handler then
+  elseif not task.last_terminal_handler or not task.last_terminal_handler.is_alive() then
     task:launch(config.terminal_provider)
   else
     local terminal_handler = task.last_terminal_handler
     task:rerun(terminal_handler)
+    terminal_handler.focus()
   end
 
   M.last_runned_task_name = task_name

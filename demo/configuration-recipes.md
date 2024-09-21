@@ -26,12 +26,3 @@ opts = {
   end
 }
 ```
-
-## Open in vertical split below
-```lua
-opts = {
-  create_window_for_terminal = function(bufnr)
-    vim.api.nvim_open_win(bufnr, true, {split = "below", height = 15})
-  end
-}
-```

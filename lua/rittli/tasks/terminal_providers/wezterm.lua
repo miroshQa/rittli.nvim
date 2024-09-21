@@ -25,32 +25,43 @@ local function CreateWeztermTerminalHandler(pane_id)
 
   terminal_handler.is_alive = function()
     -- I pick just random subcommand without any side effect
-    local obj = vim.system({ "wezterm", "cli", "get-pane-direction", "--pane-id", pane_id("Next") }):wait()
+    local obj = vim.system({ "wezterm", "cli", "get-pane-direction", "--pane-id", pane_id, "Next" }):wait()
     return obj.code == 0
   end
 
   return terminal_handler
 end
 
-local function CreateWeztermTerminalProvider(cmd)
-  ---@class WeztermTerminalProvider
-  local tab_provider = {}
+function M.CreateTabProvider()
+  ---@class WeztermTabTerminalProvider: ITerminalProvider
+  local provider = {}
 
-  tab_provider.create = function()
+  provider.create = function()
+    local cmd = { "wezterm", "cli", "spawn", "--cwd", vim.uv.cwd() }
     local obj = vim.system(cmd, {}):wait()
     local pane_id = string.gsub(obj.stdout, "\n$", "")
     return CreateWeztermTerminalHandler(pane_id)
   end
 
-  return tab_provider
+  return provider
 end
 
-function M.CreateTabProvider()
-  return CreateWeztermTerminalProvider({ "wezterm", "cli", "spawn" })
-end
+---@param split_direction string? Specify split direction. Default is 'bottom'. Possible values: 'left', 'right', 'top'
+---@param percent number? Specify the number of cells that the new split should have, expressed as a percentage of the available space. Default is 50
+function M.CreateSplitProvider(split_direction, percent)
+  split_direction = split_direction or "bottom"
+  percent = 50 or percent
+  ---@class WeztermSplitTerminalProvider: ITerminalProvider
+  local provider = {}
 
-function M.CreateSplitProvider()
-  return CreateWeztermTerminalProvider({ "wezterm", "cli", "split-pane" })
+  provider.create = function()
+    local cmd =  { "wezterm", "cli", "split-pane", "--" .. split_direction, "--percent", percent, "--cwd", vim.uv.cwd()}
+    local obj = vim.system(cmd, {}):wait()
+    local pane_id = string.gsub(obj.stdout, "\n$", "")
+    return CreateWeztermTerminalHandler(pane_id)
+  end
+
+  return provider
 end
 
 return M

@@ -4,11 +4,13 @@ local Task = {}
 
 function Task:new(raw_task, task_source_file_path, task_begin_line_number)
   ---@class Task
+  ---@field last_terminal_handler ITerminalHandler?
   local newObj = {
     task_source_file_path = task_source_file_path,
     task_begin_line_number = task_begin_line_number,
     builder = raw_task.builder,
     name = raw_task.name,
+    last_terminal_handler = nil,
     is_available = raw_task.is_available,
     cache = {},
   }
@@ -28,6 +30,7 @@ function Task:launch(terminal_provider)
   end
 
   vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
+  self.last_terminal_handler = terminal_handler
   return terminal_handler
 end
 

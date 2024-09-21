@@ -8,14 +8,12 @@ M.last_runned_task_name = ""
 
 local files_with_tasks_need_to_be_reloaded = {}
 
----@type table<string, {task: Task, terminal_handler: ITerminalHandler? }>
----First table parameter is the task name. If terminal handler isn't nil that means that this task
----**MAY BE** still active and we can send commands (instead creating new terminal)
+---@type table<string, Task>
+---First table parameter is the task name. Second is the task itself
 local loaded_tasks = {}
 
 function M.clear_tasks_loaded_from_file(file_path)
-  for key, value in pairs(loaded_tasks) do
-    local task = value.task
+  for key, task in pairs(loaded_tasks) do
     if task.task_source_file_path == file_path then
       loaded_tasks[key] = nil
     end
@@ -53,9 +51,7 @@ function M.load_tasks_from_file(file_path)
       end
     end
 
-    loaded_tasks[raw_task.name] = {
-      task = Task:new(raw_task, file_path, line_number),
-    }
+    loaded_tasks[raw_task.name] = Task:new(raw_task, file_path, line_number)
   end
 
   return true
@@ -100,8 +96,7 @@ end
 function M.collect_tasks()
   local tasks = {}
   M.reload_registered_files_with_tasks()
-  for _, value in pairs(loaded_tasks) do
-    local task = value.task
+  for _, task in pairs(loaded_tasks) do
     if task.is_available() then
       table.insert(tasks, task)
     end
@@ -120,19 +115,14 @@ end
 ---@param task_name string
 function M.run_task_by_name(task_name)
   M.reload_registered_files_with_tasks()
-  if not loaded_tasks[task_name] then
+  local task = loaded_tasks[task_name]
+  if not task then
     return false
-  elseif not loaded_tasks[task_name].terminal_handler then
-    local task = loaded_tasks[task_name].task
-    local terminal_handler = task:launch(config.terminal_provider)
-    loaded_tasks[task_name] = {
-      task = loaded_tasks[task_name].task,
-      terminal_handler = terminal_handler,
-    }
+  elseif not task.last_terminal_handler then
+    task:launch(config.terminal_provider)
   else
-    local data = loaded_tasks[task_name]
-    local terminal_handler = data.terminal_handler
-    data.task:rerun(terminal_handler)
+    local terminal_handler = task.last_terminal_handler
+    task:rerun(terminal_handler)
   end
 
   M.last_runned_task_name = task_name

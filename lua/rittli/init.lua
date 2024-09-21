@@ -1,7 +1,3 @@
--- https://miguelcrespo.co/posts/how-to-write-a-neovim-plugin-in-lua/
--- this file executes when we run require("rittli")
--- print("Hello from init.lua")
-
 local M = {}
 
 local config = require("rittli.config")

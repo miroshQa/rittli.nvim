@@ -113,26 +113,8 @@ function M.register_file_with_tasks_for_update(file_path)
 end
 
 ---@param task_name string
-function M.run_task_by_name(task_name)
-  M.reload_registered_files_with_tasks()
-  local task = loaded_tasks[task_name]
-  if not task then
-    return false
-  elseif not task.last_terminal_handler or not task.last_terminal_handler.is_alive() then
-    task:launch(config.terminal_provider)
-  else
-    local terminal_handler = task.last_terminal_handler
-    task:rerun(terminal_handler)
-    terminal_handler.focus()
-  end
-
-  M.last_runned_task_name = task_name
-  vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
-  -- pcall(vim.api.nvim_buf_set_name, 0, string.format("%s [%s]", vim.api.nvim_buf_get_name(0), task.name))
-  return true
-end
-
 function M.get_task_by_name(task_name)
+  M.reload_registered_files_with_tasks()
   return loaded_tasks[task_name]
 end
 

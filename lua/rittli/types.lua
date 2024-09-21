@@ -10,7 +10,16 @@
 ---@field is_available fun(): boolean
 ---@field tasks RawTask[]
 
+---@class BuilderResult
+---@field cmd string[]
+---@field env table<string, string> 
+
 ---@class RawTask
 ---@field name string
----@field builder fun(cache: table): { cmd: string[], env: table<string, string> }
+---@field builder fun(cache: table): BuilderResult
 ---@field is_available fun(): boolean
+
+---@class TaskLaunchResult
+---@field is_success boolean
+---@field error_msg string?
+---@field terminal_handler ITerminalHandler

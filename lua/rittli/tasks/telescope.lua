@@ -1,4 +1,7 @@
 local M = {}
+---@type string
+M.last_runned_task_name = ""
+
 
 local task_manager = require("rittli.tasks.task_manager")
 local config = require("rittli.config").config
@@ -37,12 +40,7 @@ custom_actions.launch_the_picked_task = function(prompt_bufnr)
   actions.close(prompt_bufnr)
   ---@type Task
   local task = selection.value
-  local launch_result = task_manager.run_task_by_name(task.name)
-  -- if not launch_result.is_success then
-  --   vim.notify(string.format("ABORT: %s", launch_result.error_msg), vim.log.levels.ERROR)
-  --   vim.cmd("Telescope resume")
-  --   return true
-  -- end
+  M.launch_task(task)
 end
 
 M.tasks_picker = function(opts)
@@ -82,14 +80,13 @@ M.tasks_picker = function(opts)
       -- We use this option to preselect the entry with the last runned task!
 
       function(picker)
-        local last_runned_task_name = task_manager.last_runned_task_name
-        if last_runned_task_name == "" then
+        if not M.last_runned_task_name then
           return
         end
 
         local i = 1
         for entry in picker.manager:iter() do
-          if entry.value.name == last_runned_task_name then
+          if entry.value.name == M.last_runned_task_name then
             picker:set_selection(picker:get_row(i))
             return
           end
@@ -102,9 +99,26 @@ M.tasks_picker = function(opts)
 end
 
 M.run_last_runned_task = function(opts)
-  local task_name = task_manager.last_runned_task_name
-  if not task_name or not task_manager.run_task_by_name(task_name) then
+  local task = task_manager.get_task_by_name(M.last_runned_task_name)
+  if not task then
     M.tasks_picker(opts)
+  else
+    M.launch_task(task)
+  end
+end
+
+---@param task Task
+function M.launch_task(task)
+  if task.last_terminal_handler and task.last_terminal_handler.is_alive() then
+    task:rerun(task.last_terminal_handler)
+    M.last_runned_task_name = task.name
+    vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
+  else
+    local res = task:launch(config.terminal_provider)
+    if not res.is_success then
+      vim.notify(string.format("ABORT: %s", res.error_msg), vim.log.levels.ERROR)
+      vim.cmd("Telescope resume")
+    end
   end
 end
 

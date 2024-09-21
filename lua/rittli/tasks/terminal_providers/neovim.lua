@@ -26,12 +26,18 @@ local function CreateNeovimTerminalHandler(job_id, bufnr, create_win_for_buf)
   return handler
 end
 
-function M.CreateTabProvider()
+function M.CreateFullScreenProvider()
   local function create_win_for_buf(bufnr)
-    vim.cmd("tabnew")
-    local tab_bufnr = vim.fn.bufnr("%")
-    vim.api.nvim_command("b " .. bufnr)
-    vim.api.nvim_buf_delete(tab_bufnr, {})
+    local win_opts = {
+      external = false,
+      focusable = true,
+      height = 43,
+      hide = false,
+      relative = "",
+      split = "left",
+      width = 164,
+    }
+    vim.api.nvim_open_win(bufnr, true, win_opts)
   end
 
   ---@type ITerminalProvider

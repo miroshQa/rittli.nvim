@@ -6,7 +6,7 @@ local M = {}
 
 ---@class Rittli.Config
 M.config = {
-  global_tasks_dir_path_tail = vim.fn.stdpath('config') .. "/lua",
+  global_tasks_dir_path_tail = vim.fn.stdpath("config") .. "/lua",
   folder_name_with_tasks = "tasks",
   -- full path to global tasks dir = global_tasks_dir_path_tail + "/" + folder_name_with_tasks
   disable_resource_messages = false,
@@ -15,7 +15,7 @@ M.config = {
   remember_last_task = true,
   reload_last_task_when_cwd_changes = true,
 
-  terminal_provider = wezterm.CreateSplitProvider("right"),
+  terminal_provider = neovim.CreateFullScreenProvider(),
 }
 
 return M

@@ -1,5 +1,5 @@
-local neovim_terminal_provider = require("rittli.core.terminal_providers.neovim").CreateTabProvider()
 local config = require("rittli.config").config
+local neovim_terminal_provider = config.conveniences.terminal_provider
 local utils = require("rittli.utils.other")
 
 local M = {}

@@ -37,8 +37,9 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
      { "<leader>R", function() require("rittli.core.telescope").tasks_picker() end, desc = "Pick the task" },
      { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
    },
-   ---@type Rittli.Config
-   opts = {},
+   config = function()
+     require("rittli").setup({})
+   end,
  }
 ```
 

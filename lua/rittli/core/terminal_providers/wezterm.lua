@@ -1,5 +1,11 @@
 local M = {}
 
+local function is_pane_alive(pane_id)
+  -- I pick just random subcommand without any side effect
+  local obj = vim.system({ "wezterm", "cli", "get-pane-direction", "--pane-id", pane_id, "Next" }):wait()
+  return obj.code == 0
+end
+
 local function CreateWeztermTerminalHandler(pane_id)
   ---@type ITerminalHandler
   local handler = {
@@ -21,9 +27,7 @@ local function CreateWeztermTerminalHandler(pane_id)
     end,
 
     is_alive = function()
-      -- I pick just random subcommand without any side effect
-      local obj = vim.system({ "wezterm", "cli", "get-pane-direction", "--pane-id", pane_id, "Next" }):wait()
-      return obj.code == 0
+      return is_pane_alive(pane_id)
     end,
   }
 
@@ -53,7 +57,7 @@ function M.CreateSplitProvider(split_direction, percent)
   local provider = {
     create = function(opts)
       local cmd =
-      { "wezterm", "cli", "split-pane", "--" .. split_direction, "--percent", percent, "--cwd", vim.uv.cwd() }
+        { "wezterm", "cli", "split-pane", "--" .. split_direction, "--percent", percent, "--cwd", vim.uv.cwd() }
       local obj = vim.system(cmd, { env = opts.env }):wait()
       local pane_id = string.gsub(obj.stdout, "\n$", "")
       return CreateWeztermTerminalHandler(pane_id)
@@ -63,19 +67,24 @@ function M.CreateSplitProvider(split_direction, percent)
   return provider
 end
 
+local function get_right_pane()
+  local res = vim.system({ "wezterm", "cli", "get-pane-direction", "Right" }):wait()
+  return res.stdout == "" and vim.fn.getenv("WEZTERM_PANE") or string.gsub(res.stdout, "\n$", "")
+end
+
 function M.CreateVerticalHorizontalSplitProvider()
   local split_direction = "right"
-  local prev_pane_id = nil
 
   ---@type ITerminalProvider
   local provider = {
     create = function()
-      prev_pane_id = prev_pane_id or vim.fn.getenv("WEZTERM_PANE")
+      local right_pane = get_right_pane()
+      print(right_pane)
       local cmd =
-      { "wezterm", "cli", "split-pane", "--" .. split_direction, "--pane-id", prev_pane_id, "--cwd", vim.uv.cwd() }
+        { "wezterm", "cli", "split-pane", "--" .. split_direction, "--pane-id", right_pane, "--cwd", vim.uv.cwd() }
       local obj = vim.system(cmd, {}):wait()
+      vim.print(obj)
       local pane_id = string.gsub(obj.stdout, "\n$", "")
-      prev_pane_id = pane_id
 
       split_direction = split_direction == "right" and "bottom" or "right"
       return CreateWeztermTerminalHandler(pane_id)

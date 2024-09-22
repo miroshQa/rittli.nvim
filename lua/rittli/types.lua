@@ -1,10 +1,12 @@
 ---@class ITerminalProvider
 ---@field create fun(opts: { env: table<string, string> }): ITerminalHandler
+---@field attach fun(info: string): ITerminalHandler?
 
 ---@class ITerminalHandler
 ---@field focus fun(): nil
 ---@field is_alive fun(): boolean
 ---@field execute_command fun(cmd: string): nil
+---@field get_info_to_reattach fun(): string It make sense to call this function only if is_alive return true
 
 ---@class TasksModule
 ---@field is_available fun(): boolean

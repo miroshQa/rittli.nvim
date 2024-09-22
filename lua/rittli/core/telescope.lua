@@ -1,8 +1,6 @@
 local M = {}
----@type string
-M.last_runned_task_name = ""
 
-
+local session_manager = require("rittli.core.session_manager")
 local task_manager = require("rittli.core.task_manager")
 local config = require("rittli.config").config
 local str_custom = require("rittli.utils.string_custom_functions")
@@ -23,7 +21,7 @@ custom_actions.reuse_as_template = function(prompt_bufnr)
   end
 
   actions.close(prompt_bufnr)
-  local template_name = vim.fn.input({prompt = "Enter template name"})
+  local template_name = vim.fn.input({ prompt = "Enter template name" })
   local copy_to = path_to_folder_with_tasks .. template_name .. ".lua"
   if vim.fn.filereadable(copy_to) == 1 then
     vim.notify("ABORT: File with this name already exists!", vim.log.levels.ERROR)
@@ -80,13 +78,13 @@ M.tasks_picker = function(opts)
       -- We use this option to preselect the entry with the last runned task!
 
       function(picker)
-        if not M.last_runned_task_name then
+        if not session_manager.last_runned_task_name then
           return
         end
 
         local i = 1
         for entry in picker.manager:iter() do
-          if entry.value.name == M.last_runned_task_name then
+          if entry.value.name == session_manager.last_runned_task_name then
             picker:set_selection(picker:get_row(i))
             return
           end
@@ -99,7 +97,7 @@ M.tasks_picker = function(opts)
 end
 
 M.run_last_runned_task = function(opts)
-  local task = task_manager.get_task_by_name(M.last_runned_task_name)
+  local task = task_manager.get_task_by_name(session_manager.last_runned_task_name)
   if not task then
     M.tasks_picker(opts)
   else
@@ -109,17 +107,20 @@ end
 
 ---@param task Task
 function M.launch_task(task)
-  if task.last_terminal_handler and task.last_terminal_handler.is_alive() then
-    task:rerun(task.last_terminal_handler)
-    task.last_terminal_handler.focus()
-    M.last_runned_task_name = task.name
+  local connection = session_manager.find_connection(task.name)
+  if connection then
+    task:rerun(connection.terminal_handler)
+    connection.terminal_handler.focus()
+    session_manager.last_runned_task_name = task.name
     vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
   else
     local res = task:launch(config.terminal_provider)
     if not res.is_success then
       vim.notify(string.format("ABORT: %s", res.error_msg), vim.log.levels.ERROR)
       vim.cmd("Telescope resume")
+      return
     end
+    session_manager.register_connection(task.name, res.terminal_handler)
   end
 end
 

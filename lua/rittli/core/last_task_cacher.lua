@@ -1,6 +1,6 @@
 local tasks_manager = require("rittli.core.task_manager")
+local session_manager = require("rittli.core.session_manager")
 local config = require("rittli.config").config
-local telescope_launcher = require("rittli.core.telescope")
 
 local cache_file_path = vim.fn.stdpath("cache") .. "/last_tasks_cache.json"
 local last_tasks_name_per_dir = {}
@@ -28,7 +28,7 @@ local function set_last_task_for_cwd()
   local cwd_last_task_name = last_tasks_name_per_dir[vim.uv.cwd()]
   local task = tasks_manager.get_task_by_name(cwd_last_task_name)
   if task then
-    telescope_launcher.last_runned_task_name = cwd_last_task_name
+    session_manager.last_runned_task_name = cwd_last_task_name
   end
 end
 
@@ -39,7 +39,7 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "TaskLaunched",
   group = vim.api.nvim_create_augroup("LastTasksPerDirCacher", { clear = true }),
   callback = function()
-    last_tasks_name_per_dir[vim.uv.cwd()] = telescope_launcher.last_runned_task_name
+    last_tasks_name_per_dir[vim.uv.cwd()] = session_manager.last_runned_task_name
   end,
 })
 

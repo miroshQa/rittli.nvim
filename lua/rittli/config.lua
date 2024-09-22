@@ -16,7 +16,7 @@ M.config = {
   remember_last_task = true,
   reload_last_task_when_cwd_changes = true,
 
-  terminal_provider = neovim.CreateTabProvider(),
+  terminal_provider = wezterm.CreateSplitProvider('right'),
 
   conveniences = {
     ---You may want to turn off this if you are going to use western instead of the built-in neovim terminal
@@ -27,7 +27,7 @@ M.config = {
     end,
 
     ---You must pass here a TerminalProvider only from rittli.core.terminal_providers.neovim
-    terminal_provider = neovim.CreateTabProvider(),
+    terminal_provider = wezterm.CreateSplitProvider('right'),
   },
 }
 

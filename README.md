@@ -177,3 +177,9 @@ opts = {
 ```
 
 *You can find some configuration recipes [here](/demo/configuration-recipes.md)*
+
+
+## 🌻 Project Roadmap
+- Tmux integration
+- Ability to attach task to the existing terminal (It only sounds easy). [It is implemented here](https://github.com/samharju/yeet.nvim)
+- Better documentation and lua-ls type annotations

@@ -15,6 +15,7 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
 - 🌟 Last tasks is rememberd for each directory
 - 🔥 Create tasks dynamically! (My favorite use: Write all buffers before launch)
 - 🧓 Cache the task if you want!
+-  👖Wezterm integration!
 
 *You can see some features preview [here](/demo/gallery.md)*
 
@@ -32,9 +33,8 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
    },
    keys = {
      { "<C-t>",     function() require("rittli.terminal_tweaks").toggle_last_openned_terminal() end, mode = { "n", "t" }},
-     {"<Esc><Esc>", "<C-\\><C-n>", mode = "t"},
-     { "<leader>r", function() require("rittli.core.telescope").run_last_runned_task() end, desc = "Rerun the last task or pick a new one" },
-     { "<leader>R", function() require("rittli.core.telescope").tasks_picker() end, desc = "Pick the task" },
+     { "<Esc><Esc>", "<C-\\><C-n>", mode = "t" },
+     { "<leader>r", function() require("rittli.core.telescope").tasks_picker() end, desc = "Pick the task" },
      { "<leader><leader>", function() require('telescope.builtin').buffers({path_display = {'tail'}, sort_mru = true, ignore_current_buffer = true}) end}
    },
    config = function()
@@ -80,7 +80,6 @@ M.tasks = {
       local compiler = vim.bo.filetype == "c" and "gcc" or "g++"
       if not cache.args then
         cache.args = vim.fn.input({prompt = "Enter exe arguments: "})
-        -- Launch this task pressing leader + R to clear cache
       end
 
       task.cmd = {
@@ -108,21 +107,20 @@ return M
 > [!NOTE]  
 > - You can hide the terminal (opened on launch in new tab) and open again using "ctrl + t"  
 > - You can close hide the terminal, simply type "exit" in the shell or press "ctrl + d"  
-> - If you press "leader + r" again it will rerun the last task instead openning telescope picker  
-
+> - If you press "leader + r" again the previous running task will already be selected, just press enter to start it again!
 
 ### 3. Launch multiple tasks 💦
 1. Hide the terminal with the task you have launched by pressing "ctrl + t.
-2. Press "leader + R" again, pick a new task and launch.
+2. Press "leader + r" again, pick a new task and launch.
 3. Launch how many tasks as you want!
 
 > [!NOTE]  
 > - To open one of these opened and then hidden terminals, press "leader + leader", select the desired terminal and press "ctrl + t"  
 
 ### 4. Edit tasks 🔨
-1. Open the Telescope tasks picker (press "leader + R") and select the desired task.      
+1. Open the Telescope tasks picker (press "leader + r") and select the desired task.      
 2. Press "ctrl + t" to open a buffer with the task in a new tab and edit it
-3. When you open Telescope tasks picker again or rerun the last task, your tasks will be updated, and you will receive a notification about that
+3. When you open Telescope tasks picker again, your tasks will be updated, and you will receive a notification about that
 
 > [!NOTE]  
 > - Tabs? Buffers? Windows? Wtf is that? If so, it is highly recommended to read [this](https://betterprogramming.pub/50-vim-mode-tips-for-ide-users-f7b525a794b3#:~:text=colorless%20diff%20command.-,67.%20Vim%20tabs,-It%20must%20be) (section 67) and watch [this](https://www.youtube.com/watch?v=_6OqJrdbfs0&t=221s) video
@@ -166,14 +164,42 @@ M.tasks = {
 return M
 
 ```
+### 8. Understand the stickiness of tasks 🫠
+When you run a task for the first time, a terminal is created for it, after that the task begins to own this terminal until you destroy it
+
+That means two things:
+1. Every time you launch this task again, its commands will be sended to the terminal that the task owns without recreating it.
+2. You cannot run one task in more than one terminal
+
+> [!NOTE]  
+> - The tasks even remain attached to the terminal after relaunching neovim! (This is especially useful if you run tasks in wezterm)
+
+### 9. Try wezterm terminal provider instead neovim builtin terminal 👖
+1. By default, tasks are started in a new tab in the neovim terminal. You can change this
+```lua
+  --- With this setting a terminal for tasks will be spawned by wezterm in the vertical split
+config = function()
+  require("rittli").setup({
+      terminal_provider = require('rittli.core.terminal_providers.wezterm').CreateSplitProvider('right')}
+    })
+end,
+```
+
+- To find out more about the available possible terminal providers, use auto-completion lsp hints
+(you also need to have [lazydev](https://github.com/folke/lazydev.nvim) installed)
+, or see the [source code](./lua/rittli/core/terminal_providers/)
+
+
 
 ## ⚙️ Configuration
 You can check the default configuration [here](./lua/rittli/config.lua). To override default options, simply pass new values in the opts table
 ```lua
-opts = {
-  folder_name_with_tasks = "MyTasks",
-  disable_resource_messages = true,
-}
+config = function()
+  require("rittli").setup({
+    folder_name_with_tasks = "MyTasks",
+    disable_resource_messages = true,
+  })
+end
 ```
 
 *You can find some configuration recipes [here](/demo/configuration-recipes.md)*

@@ -97,16 +97,6 @@ M.tasks_picker = function(opts)
   picker:find()
 end
 
-M.run_last_runned_task = function(opts)
-  local last_runned_task_name = session_manager.get_last_runned_task_name()
-  local task = task_manager.get_task_by_name(last_runned_task_name)
-  if not task then
-    M.tasks_picker(opts)
-  else
-    M.launch_task(task)
-  end
-end
-
 ---@param task Task
 function M.launch_task(task)
   local connection = session_manager.find_connection(task.name)

@@ -78,13 +78,14 @@ M.tasks_picker = function(opts)
       -- We use this option to preselect the entry with the last runned task!
 
       function(picker)
-        if not session_manager.last_runned_task_name then
+        local last_runned_task_name = session_manager.get_last_runned_task_name()
+        if not last_runned_task_name then
           return
         end
 
         local i = 1
         for entry in picker.manager:iter() do
-          if entry.value.name == session_manager.last_runned_task_name then
+          if entry.value.name == last_runned_task_name then
             picker:set_selection(picker:get_row(i))
             return
           end
@@ -97,7 +98,8 @@ M.tasks_picker = function(opts)
 end
 
 M.run_last_runned_task = function(opts)
-  local task = task_manager.get_task_by_name(session_manager.last_runned_task_name)
+  local last_runned_task_name = session_manager.get_last_runned_task_name()
+  local task = task_manager.get_task_by_name(last_runned_task_name)
   if not task then
     M.tasks_picker(opts)
   else
@@ -111,8 +113,6 @@ function M.launch_task(task)
   if connection then
     task:rerun(connection.terminal_handler)
     connection.terminal_handler.focus()
-    session_manager.last_runned_task_name = task.name
-    vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
   else
     local res = task:launch(config.terminal_provider)
     if not res.is_success then

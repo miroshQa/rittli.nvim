@@ -4,8 +4,6 @@ local Task = require("rittli.core.Task")
 -- This whole module (file) il like a class and in this table below I define public / private methods or fields
 local M = {}
 
-M.last_runned_task_name = ""
-
 local files_with_tasks_need_to_be_reloaded = {}
 
 ---@type table<string, Task>

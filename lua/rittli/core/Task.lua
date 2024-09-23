@@ -46,7 +46,7 @@ function Task:launch(terminal_provider)
     terminal_handler.execute_command(command)
   end
 
-  vim.api.nvim_exec_autocmds("User", { pattern = "TaskLaunched" })
+  vim.api.nvim_exec_autocmds("User", { pattern = "TaskExecuted", data = self.name })
   return {is_success = true, terminal_handler = terminal_handler}
 end
 
@@ -57,6 +57,7 @@ function Task:rerun(terminal_handler)
   for _, command in ipairs(builder_result.cmd) do
     terminal_handler.execute_command(command)
   end
+  vim.api.nvim_exec_autocmds("User", { pattern = "TaskExecuted", data = self.name })
 end
 
 return Task

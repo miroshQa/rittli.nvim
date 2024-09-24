@@ -15,7 +15,8 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
 - 🌟 Last tasks is rememberd for each directory
 - 🔥 Create tasks dynamically! (My favorite use: Write all buffers before launch)
 - 🧓 Cache the task if you want!
--  👖Wezterm integration!
+- 👖Wezterm integration!
+- 🤯 Launch a task in the already existing terminal!
 
 *You can see some features preview [here](/demo/gallery.md)*
 

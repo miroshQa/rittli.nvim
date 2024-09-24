@@ -44,6 +44,11 @@ custom_actions.launch_the_picked_task = function(prompt_bufnr)
   M.launch_task(task)
 end
 
+custom_actions.attach_to_terminal_handler_and_launch = function()
+  local selection = action_state.get_selected_entry()
+  M.terminal_handlers_picker({}, selection.value)
+end
+
 M.tasks_picker = function(opts)
   opts = opts or {}
   local picker = pickers.new(opts, {
@@ -72,6 +77,7 @@ M.tasks_picker = function(opts)
     sorter = conf.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
       map({ "i", "n" }, "<C-r>", custom_actions.reuse_as_template)
+      map({ "i", "n" }, "<C-a>", custom_actions.attach_to_terminal_handler_and_launch)
       map({ "i", "n" }, "<Enter>", custom_actions.launch_the_picked_task)
       return true
     end,
@@ -96,6 +102,40 @@ M.tasks_picker = function(opts)
         end
       end,
     },
+  })
+  picker:find()
+end
+
+---@param task_to_launch Task
+M.terminal_handlers_picker = function(opts, task_to_launch)
+  opts = {}
+  local picker = pickers.new(opts, {
+    prompt_title = "SelectTerminalToLaunchTask",
+    finder = finders.new_table({
+      results = session_manager.get_all_lonely_terminal_handlers(),
+      ---@param handler ITerminalHandler
+      entry_maker = function(handler)
+        local id = handler.get_info_to_reattach()
+        return {
+          value = handler,
+          display = id,
+          ordinal = id,
+        }
+      end,
+    }),
+    sorter = conf.generic_sorter(opts),
+    attach_mappings = function(prompt_bufnr, map)
+      map({ "i", "n" }, "<Enter>", function()
+        local selection = action_state.get_selected_entry()
+        if not selection or not selection.value.focus then
+          return
+        end
+        session_manager.register_connection(task_to_launch.name, selection.value)
+        actions.close(prompt_bufnr)
+        M.launch_task(task_to_launch)
+      end)
+      return true
+    end,
   })
   picker:find()
 end

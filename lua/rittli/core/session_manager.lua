@@ -33,6 +33,25 @@ function SessionManager.find_connection(task_name)
   end
 end
 
+function SessionManager.get_all_lonely_terminal_handlers()
+  local all = config.terminal_provider.get_all_available_handlers()
+  local lonely_handlers = {}
+  for _, handler in ipairs(all) do
+    local handler_signature = handler.get_info_to_reattach()
+    local is_handler_lonely = true
+    for _, connection in pairs(active_connections) do
+      if connection.terminal_handler.get_info_to_reattach() == handler_signature then
+        is_handler_lonely = false
+        break
+      end
+    end
+    if is_handler_lonely then
+      table.insert(lonely_handlers, handler)
+    end
+  end
+  return lonely_handlers
+end
+
 ---@return string
 function SessionManager.get_last_runned_task_name()
   local result =  last_tasks_name_per_dir[vim.uv.cwd()]

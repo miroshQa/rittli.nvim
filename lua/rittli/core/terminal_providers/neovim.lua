@@ -87,6 +87,9 @@ function Local.attach(buf_name, create_win_for_buf)
   end
 
   local chan_id = vim.api.nvim_get_option_value("channel", { buf = buff_with_term })
+  if chan_id == 0 then
+    return nil
+  end
   return CreateNeovimTerminalHandler(chan_id, buff_with_term, create_win_for_buf)
 end
 

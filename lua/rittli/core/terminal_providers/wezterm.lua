@@ -55,19 +55,22 @@ function M.CreateSplitProvider(split_direction, percent)
   return provider
 end
 
-function M.CreateVerticalHorizontalSplitProvider()
-  local split_direction = "right"
-
+function M.CreateMasterLayoutProvider()
+  local split_direction = "bottom"
   ---@type ITerminalProvider
   local provider = {
     create = function()
       local right_pane = Local.get_right_pane()
+      if right_pane == vim.fn.getenv("WEZTERM_PANE") then
+        split_direction = "right"
+      end
+
       local cmd =
         { "wezterm", "cli", "split-pane", "--" .. split_direction, "--pane-id", right_pane, "--cwd", vim.uv.cwd() }
       local obj = vim.system(cmd, {}):wait()
       local pane_id = string.gsub(obj.stdout, "\n$", "")
 
-      split_direction = split_direction == "right" and "bottom" or "right"
+      split_direction = "bottom"
       return CreateWeztermTerminalHandler(pane_id)
     end,
     attach = Local.attach,

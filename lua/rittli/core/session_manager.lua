@@ -102,8 +102,6 @@ function Local.save_connections()
   for task_name, connection in pairs(active_connections) do
     if connection.terminal_handler.is_alive() then
       encodable[task_name] = connection.terminal_handler.get_info_to_reattach()
-    else
-      encodable[task_name] = "broken"
     end
   end
   local text = vim.json.encode(encodable)

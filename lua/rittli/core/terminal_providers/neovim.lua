@@ -23,6 +23,9 @@ local function CreateNeovimTerminalHandler(chan_id, bufnr, create_win_for_buf)
     get_info_to_reattach = function()
       return vim.api.nvim_buf_get_name(bufnr)
     end,
+    get_name = function()
+      return vim.api.nvim_buf_get_name(bufnr)
+    end
   }
 
   return handler

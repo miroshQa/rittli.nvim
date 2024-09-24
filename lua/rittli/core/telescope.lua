@@ -115,11 +115,11 @@ M.terminal_handlers_picker = function(opts, task_to_launch)
       results = session_manager.get_all_lonely_terminal_handlers(),
       ---@param handler ITerminalHandler
       entry_maker = function(handler)
-        local id = handler.get_info_to_reattach()
+        local name = handler.get_name()
         return {
           value = handler,
-          display = id,
-          ordinal = id,
+          display = name,
+          ordinal = name,
         }
       end,
     }),

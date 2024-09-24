@@ -1,3 +1,6 @@
+-- TODO: Replace cli wezterm interaction with wezterm lua api
+local wez = require("wezterm")
+
 local M = {}
 local Local = {}
 
@@ -17,22 +20,46 @@ local function CreateWeztermTerminalHandler(pane_id)
     get_info_to_reattach = function()
       return pane_id
     end,
+    get_name = function()
+      return "Wezterm pane_id: " .. pane_id
+    end
   }
   return handler
 end
 
-function M.CreateTabProvider()
+
+function CreateWeztermTerminalProvider(create_function)
   ---@type ITerminalProvider
   local provider = {
     create = function(opts)
-      local cmd = { "wezterm", "cli", "spawn", "--cwd", vim.uv.cwd() }
-      local obj = vim.system(cmd, { env = opts.env }):wait()
-      local pane_id = string.gsub(obj.stdout, "\n$", "")
-      return CreateWeztermTerminalHandler(pane_id)
+      return create_function(opts)
     end,
     attach = Local.attach,
+    get_all_available_handlers = function()
+      local res = {}
+      local panes = wez.list_panes()
+      if not panes then
+        return res
+      end
+      for _, pane_info in ipairs(panes) do
+        if wez.get_current_pane() ~= pane_info.pane_id then
+          table.insert(res, CreateWeztermTerminalHandler(pane_info.pane_id))
+        end
+      end
+      return res
+    end,
   }
   return provider
+end
+
+function M.CreateTabProvider()
+  local function create_function(opts)
+    local cmd = { "wezterm", "cli", "spawn", "--cwd", vim.uv.cwd() }
+    local obj = vim.system(cmd, { env = opts.env }):wait()
+    local pane_id = string.gsub(obj.stdout, "\n$", "")
+    return CreateWeztermTerminalHandler(pane_id)
+  end
+  return CreateWeztermTerminalProvider(create_function)
 end
 
 ---@param split_direction string? Specify split direction. Default is 'bottom'. Possible values: 'left', 'right', 'top'
@@ -40,43 +67,35 @@ end
 function M.CreateSplitProvider(split_direction, percent)
   split_direction = split_direction or "bottom"
   percent = 50 or percent
-  ---@type ITerminalProvider
-  local provider = {
-    create = function(opts)
-      local cmd =
-        { "wezterm", "cli", "split-pane", "--" .. split_direction, "--percent", percent, "--cwd", vim.uv.cwd() }
-      local obj = vim.system(cmd, { env = opts.env }):wait()
-      local pane_id = string.gsub(obj.stdout, "\n$", "")
-      return CreateWeztermTerminalHandler(pane_id)
-    end,
-    attach = Local.attach,
-  }
+  local function create_function(opts)
+    local cmd = { "wezterm", "cli", "split-pane", "--" .. split_direction, "--percent", percent, "--cwd", vim.uv.cwd() }
+    local obj = vim.system(cmd, { env = opts.env }):wait()
+    local pane_id = string.gsub(obj.stdout, "\n$", "")
+    return CreateWeztermTerminalHandler(pane_id)
+  end
 
-  return provider
+  return CreateWeztermTerminalProvider(create_function)
 end
 
 function M.CreateMasterLayoutProvider()
   local split_direction = "bottom"
-  ---@type ITerminalProvider
-  local provider = {
-    create = function()
-      local right_pane = Local.get_right_pane()
-      if right_pane == vim.fn.getenv("WEZTERM_PANE") then
-        split_direction = "right"
-      end
 
-      local cmd =
-        { "wezterm", "cli", "split-pane", "--" .. split_direction, "--pane-id", right_pane, "--cwd", vim.uv.cwd() }
-      local obj = vim.system(cmd, {}):wait()
-      local pane_id = string.gsub(obj.stdout, "\n$", "")
+  local function create_function(opts)
+    local right_pane = Local.get_right_pane()
+    if right_pane == vim.fn.getenv("WEZTERM_PANE") then
+      split_direction = "right"
+    end
 
-      split_direction = "bottom"
-      return CreateWeztermTerminalHandler(pane_id)
-    end,
-    attach = Local.attach,
-  }
+    local cmd =
+    { "wezterm", "cli", "split-pane", "--" .. split_direction, "--pane-id", right_pane, "--cwd", vim.uv.cwd() }
+    local obj = vim.system(cmd, {}):wait()
+    local pane_id = string.gsub(obj.stdout, "\n$", "")
 
-  return provider
+    split_direction = "bottom"
+    return CreateWeztermTerminalHandler(pane_id)
+  end
+
+  return CreateWeztermTerminalProvider(create_function)
 end
 
 function Local.get_right_pane()

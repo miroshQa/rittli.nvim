@@ -37,10 +37,10 @@ function SessionManager.get_all_lonely_terminal_handlers()
   local all = config.terminal_provider.get_all_available_handlers()
   local lonely_handlers = {}
   for _, handler in ipairs(all) do
-    local handler_signature = handler.get_info_to_reattach()
+    local handler_name = handler.get_name()
     local is_handler_lonely = true
     for _, connection in pairs(active_connections) do
-      if connection.terminal_handler.get_info_to_reattach() == handler_signature then
+      if connection.terminal_handler.get_name() == handler_name then
         is_handler_lonely = false
         break
       end

@@ -1,6 +1,7 @@
 ---@class ITerminalProvider
 ---@field create fun(opts: { env: table<string, string> }): ITerminalHandler
 ---@field attach fun(info: string): ITerminalHandler?
+---@field get_all_available_handlers fun(): ITerminalHandler[]
 
 ---@class ITerminalHandler
 ---@field focus fun(): nil

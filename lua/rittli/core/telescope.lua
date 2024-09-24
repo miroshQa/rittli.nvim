@@ -35,6 +35,9 @@ end
 
 custom_actions.launch_the_picked_task = function(prompt_bufnr)
   local selection = action_state.get_selected_entry()
+  if not selection then
+    return
+  end
   actions.close(prompt_bufnr)
   ---@type Task
   local task = selection.value

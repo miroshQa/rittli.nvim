@@ -3,7 +3,6 @@ local M = {}
 local session_manager = require("rittli.core.session_manager")
 local task_manager = require("rittli.core.task_manager")
 local config = require("rittli.config").config
-local str_custom = require("rittli.utils.string_custom_functions")
 
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
@@ -59,10 +58,10 @@ M.tasks_picker = function(opts)
         return {
           value = task,
           display = function()
-            local str_custom = require("rittli.utils.string_custom_functions")
+            local utils = require("rittli.utils")
             local task_name_max_len = 15
-            local task_name = str_custom.shrink_line(task.name, task_name_max_len)
-            task_name = str_custom.justify_str_left(task_name, task_name_max_len + 5, " ")
+            local task_name = utils.shrink_line(task.name, task_name_max_len)
+            task_name = utils.justify_str_left(task_name, task_name_max_len + 5, " ")
             local file_path = vim.fn.fnamemodify(task.task_source_file_path, ":~")
 
             return task_name .. string.format("[%s]", file_path)

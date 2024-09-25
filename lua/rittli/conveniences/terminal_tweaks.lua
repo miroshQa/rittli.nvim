@@ -1,6 +1,6 @@
 local config = require("rittli.config").config
 local neovim_terminal_provider = config.conveniences.terminal_provider
-local utils = require("rittli.utils.other")
+local utils = require("rittli.utils")
 
 local M = {}
 

@@ -181,7 +181,7 @@ That means two things:
   --- With this setting a terminal for tasks will be spawned by wezterm in the vertical split
 config = function()
   require("rittli").setup({
-      terminal_provider = require('rittli.core.terminal_providers.wezterm').CreateSplitProvider('right')}
+      terminal_provider = require('rittli.core.terminal_providers.wezterm').CreateMasterLayoutProvider()
     })
 end,
 ```
@@ -189,6 +189,14 @@ end,
 - To find out more about the available possible terminal providers, use auto-completion lsp hints
 (you also need to have [lazydev](https://github.com/folke/lazydev.nvim) installed)
 , or see the [source code](./lua/rittli/core/terminal_providers/)
+
+### 10. Attach to the terminal instead creating new one! 🤝
+1. As you may have noticed, starting a task for the first time creates a new terminal,
+but what if you already have a terminal open and you want to launch the task in it?
+To do this, open the task picker, select the task and press "ctrl + a". Select the desired terminal and press enter!
+
+> [!NOTE]  
+> - You have to understand that, you cannot attach a task to an existing terminal if the task has environment variables that need to be set
 
 
 
@@ -206,5 +214,4 @@ end
 
 ## 🌻 Project Roadmap
 - Tmux integration
-- Ability to attach task to the existing terminal (It only sounds easy). [It is implemented here](https://github.com/samharju/yeet.nvim)
 - Better documentation and lua-ls type annotations

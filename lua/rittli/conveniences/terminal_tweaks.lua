@@ -54,7 +54,7 @@ function M.toggle_last_openned_terminal()
     vim.fn.win_gotoid(last_enter_info.winid)
   else
     -- HACK: We need this hack because window_config can't restore window properly if it was opened in a new tab
-    if #last_enter_info.windows_in_the_tab == 1 then
+    if #last_enter_info.windows_in_the_tab == 1 and last_enter_info.windows_in_the_tab[1] == last_enter_info.winid then
       vim.cmd("tabnew")
       local tab_bufnr = vim.fn.bufnr("%")
       vim.api.nvim_command("b " .. last_enter_info.bufnr)

@@ -203,8 +203,6 @@ config = function()
 end
 ```
 
-*You can find some configuration recipes [here](/demo/configuration-recipes.md)*
-
 
 ## 🌻 Project Roadmap
 - Tmux integration

@@ -1,5 +1,4 @@
 local M = {}
-local Local = {}
 
 local function CreateNeovimTerminalHandler(chan_id, bufnr, create_win_for_buf)
   --- We have to make a lua table (class kind of) that implements interface ITerminalHandler
@@ -25,7 +24,7 @@ local function CreateNeovimTerminalHandler(chan_id, bufnr, create_win_for_buf)
     end,
     get_name = function()
       return vim.api.nvim_buf_get_name(bufnr)
-    end
+    end,
   }
 
   return handler
@@ -85,9 +84,28 @@ function M.CreateTabProvider()
   return CreateNeovimTerminalProvider(create_win_for_buf)
 end
 
-function M.CreateSplitProvider()
+---@param direction string? Split direction. Possible values: left, right, below, above. Default: below
+---@param height number? Split height. Default: 15
+function M.CreateSplitProvider(direction, height)
+  direction = direction or "below"
+  height = height or 15
   local function create_win_for_buf(bufnr)
-    vim.api.nvim_open_win(bufnr, true, { split = "below", height = 15 })
+    vim.api.nvim_open_win(bufnr, true, { split = direction, height = height })
+  end
+  return CreateNeovimTerminalProvider(create_win_for_buf)
+end
+
+function M.CreateFloatProvider()
+  local create_win_for_buf = function(bufnr)
+    local curved = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+    local width = math.ceil(math.min(vim.o.columns, math.max(80, vim.o.columns - 20)))
+    local height = math.ceil(math.min(vim.o.lines, math.max(20, vim.o.lines - 10)))
+
+    local row = math.ceil(vim.o.lines - height) * 0.5 - 1
+    local col = math.ceil(vim.o.columns - width) * 0.5 - 1
+
+    local win_settings = { row = row, col = col, relative = "editor", width = width, height = height, border = curved }
+    vim.api.nvim_open_win(bufnr, true, win_settings)
   end
   return CreateNeovimTerminalProvider(create_win_for_buf)
 end

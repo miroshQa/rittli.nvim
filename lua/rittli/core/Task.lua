@@ -1,3 +1,8 @@
+--- This module provides a Task class that is responsible for launching itself
+--- using some "TerminalProvider" terminal and "TerminalHandler"
+--- (for this, these entities must support interfaces declared in types.lua)
+
+
 ---@class Task
 local Task = {}
 

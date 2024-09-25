@@ -1,7 +1,10 @@
+--- This module provides API for working with tasks:
+--- Get a task, load tasks from a file, register a file with tasks for updating (
+--- tasks from the file will be updated when the user requests some task)
+
 local config = require("rittli.config").config
 local Task = require("rittli.core.Task")
 
--- This whole module (file) il like a class and in this table below I define public / private methods or fields
 local M = {}
 
 local files_with_tasks_need_to_be_reloaded = {}

@@ -1,3 +1,8 @@
+--- This module allows you to keep tasks up to date, when  files with tasks changes,
+--- In this case it asks the task manager to register the file for updating
+--- (the update will occur when the user requests tasks from task_manager again)
+--- Or when the user changes the working directory, this module asks task manager to load tasks
+
 local config = require("rittli.config").config
 local task_manager = require("rittli.core.task_manager")
 

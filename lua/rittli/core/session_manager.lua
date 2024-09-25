@@ -1,3 +1,7 @@
+--- This module is responsible for maintaing a session with the user:
+--- It remembers the last running task, and remembers which terminal the task is attached to.
+--- Also, this module restores all this information after restarting, that is, it restores the user's session
+
 local config = require("rittli.config").config
 
 local SessionManager = {}
@@ -54,7 +58,7 @@ end
 
 ---@return string
 function SessionManager.get_last_runned_task_name()
-  local result =  last_tasks_name_per_dir[vim.uv.cwd()]
+  local result = last_tasks_name_per_dir[vim.uv.cwd()]
   return result
 end
 

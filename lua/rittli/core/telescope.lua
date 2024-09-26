@@ -6,6 +6,7 @@ local config = require("rittli.config").config
 
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
+local previewers = require("telescope.previewers")
 local conf = require("telescope.config").values
 local action_state = require("telescope.actions.state")
 local actions = require("telescope.actions")
@@ -50,22 +51,15 @@ end
 
 M.tasks_picker = function(opts)
   opts = opts or {}
+
   local picker = pickers.new(opts, {
-    prompt_title = "SelectTaskToLaunch",
+   prompt_title = "SelectTaskToLaunch",
     finder = finders.new_table({
       results = task_manager.collect_tasks(),
       entry_maker = function(task)
         return {
           value = task,
-          display = function()
-            local utils = require("rittli.utils")
-            local task_name_max_len = 15
-            local task_name = utils.shrink_line(task.name, task_name_max_len)
-            task_name = utils.justify_str_left(task_name, task_name_max_len + 5, " ")
-            local file_path = vim.fn.fnamemodify(task.task_source_file_path, ":~")
-
-            return task_name .. string.format("[%s]", file_path)
-          end,
+          display = config.telescope_display_maker,
           ordinal = task.name,
           filename = task.task_source_file_path,
           lnum = task.task_begin_line_number,
@@ -122,6 +116,18 @@ M.terminal_handlers_picker = function(opts, task_to_launch)
         }
       end,
     }),
+    -- previewer = previewers.new_buffer_previewer({
+    --   title = "My preview",
+    --   define_preview = function(self, entry, status)
+    --     local factor = 100
+    --     vim.print(self.state)
+    --     vim.print(vim.api.nvim_win_get_config(self.state.winid))
+    --     vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, {
+    --       string.rep("a", factor),
+    --       string.rep("b", factor),
+    --     })
+    --   end,
+    -- }),
     sorter = conf.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
       map({ "i", "n" }, "<Enter>", function()

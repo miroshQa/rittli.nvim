@@ -48,5 +48,16 @@ function M.get_all_windows_in_cur_tabpage()
   return res
 end
 
+---@param buf_name string
+---@return integer?
+function M.find_bufnr_by_name(buf_name)
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_get_name(bufnr) == buf_name then
+      return bufnr
+    end
+  end
+  return nil
+end
+
 
 return M

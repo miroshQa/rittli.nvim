@@ -24,6 +24,10 @@ function M.split_string(str, delimiter)
   return result
 end
 
+function M.rm_endline(str)
+  return string.gsub(str, "\n$", "")
+end
+
 -- https://www.reddit.com/r/neovim/comments/thynt9/what_api_to_get_the_current_count_of_windows/
 function M.get_all_windows_in_cur_tabpage()
   local list = vim.api.nvim_tabpage_list_wins(0)

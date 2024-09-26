@@ -1,5 +1,4 @@
--- TODO: Replace cli wezterm interaction with wezterm lua api
-local wez = require("wezterm")
+local utils = require("rittli.utils")
 
 local M = {}
 local Local = {}
@@ -28,7 +27,7 @@ local function CreateWeztermTerminalHandler(pane_id)
 end
 
 
-function CreateWeztermTerminalProvider(create_function)
+function CreateTmuxTerminalProvider(create_function)
   ---@type ITerminalProvider
   local provider = {
     create = function(opts)
@@ -37,12 +36,12 @@ function CreateWeztermTerminalProvider(create_function)
     attach = Local.attach,
     get_all_available_handlers = function()
       local res = {}
-      local panes = wez.list_panes()
+      local panes = vim.json.decode(vim.system({"wezterm", "cli", "list", "--format", "json"}):wait().stdout)
       if not panes then
         return res
       end
       for _, pane_info in ipairs(panes) do
-        if wez.get_current_pane() ~= pane_info.pane_id then
+        if os.getenv("WEZTERM_PANE") ~= pane_info.pane_id then
           table.insert(res, CreateWeztermTerminalHandler(pane_info.pane_id))
         end
       end
@@ -56,10 +55,10 @@ function M.CreateTabProvider()
   local function create_function(opts)
     local cmd = { "wezterm", "cli", "spawn", "--cwd", vim.uv.cwd() }
     local obj = vim.system(cmd, { env = opts.env }):wait()
-    local pane_id = string.gsub(obj.stdout, "\n$", "")
+    local pane_id = utils.rm_endline(obj.stdout)
     return CreateWeztermTerminalHandler(pane_id)
   end
-  return CreateWeztermTerminalProvider(create_function)
+  return CreateTmuxTerminalProvider(create_function)
 end
 
 ---@param split_direction string? Specify split direction. Default is 'bottom'. Possible values: 'left', 'right', 'top'
@@ -69,12 +68,13 @@ function M.CreateSplitProvider(split_direction, percent)
   percent = 50 or percent
   local function create_function(opts)
     local cmd = { "wezterm", "cli", "split-pane", "--" .. split_direction, "--percent", percent, "--cwd", vim.uv.cwd() }
+    ---BUG: This code below doesn't set env variables
     local obj = vim.system(cmd, { env = opts.env }):wait()
-    local pane_id = string.gsub(obj.stdout, "\n$", "")
+    local pane_id = utils.rm_endline(obj)
     return CreateWeztermTerminalHandler(pane_id)
   end
 
-  return CreateWeztermTerminalProvider(create_function)
+  return CreateTmuxTerminalProvider(create_function)
 end
 
 function M.CreateMasterLayoutProvider()
@@ -89,18 +89,18 @@ function M.CreateMasterLayoutProvider()
     local cmd =
     { "wezterm", "cli", "split-pane", "--" .. split_direction, "--pane-id", right_pane, "--cwd", vim.uv.cwd() }
     local obj = vim.system(cmd, {}):wait()
-    local pane_id = string.gsub(obj.stdout, "\n$", "")
+    local pane_id = utils.rm_endline(obj.stdout)
 
     split_direction = "bottom"
     return CreateWeztermTerminalHandler(pane_id)
   end
 
-  return CreateWeztermTerminalProvider(create_function)
+  return CreateTmuxTerminalProvider(create_function)
 end
 
 function Local.get_right_pane()
   local res = vim.system({ "wezterm", "cli", "get-pane-direction", "Right" }):wait()
-  return res.stdout == "" and vim.fn.getenv("WEZTERM_PANE") or string.gsub(res.stdout, "\n$", "")
+  return res.stdout == "" and vim.fn.getenv("WEZTERM_PANE") or utils.rm_endline(res.stdout)
 end
 
 function Local.is_pane_alive(pane_id)

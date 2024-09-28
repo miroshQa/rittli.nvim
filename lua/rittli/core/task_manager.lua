@@ -86,9 +86,11 @@ end
 
 function M.reload_registered_files_with_tasks()
   for file_path, old_mtime in pairs(files_with_tasks_need_to_be_reloaded) do
-    local curr_mtime = vim.uv.fs_stat(file_path).mtime
-    if curr_mtime.sec ~= old_mtime.sec or curr_mtime.nsec ~= old_mtime.nsec then
-      M.update_tasks_from_file(file_path)
+    if vim.fn.filereadable(file_path) == 1 then
+      local curr_mtime = vim.uv.fs_stat(file_path).mtime
+      if curr_mtime.sec ~= old_mtime.sec or curr_mtime.nsec ~= old_mtime.nsec then
+        M.update_tasks_from_file(file_path)
+      end
     end
     files_with_tasks_need_to_be_reloaded[file_path] = nil
   end

@@ -32,6 +32,7 @@ M.config = {
     end,
     ---You must pass here a TerminalProvider only from rittli.core.terminal_providers.neovim
     terminal_provider = neovim.CreateTabProvider(),
+    auto_insert = true,
   },
 }
 

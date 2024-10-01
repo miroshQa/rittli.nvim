@@ -64,7 +64,6 @@ local function CreateNeovimTerminalProvider(create_win_for_buf)
       for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
         local buf_name = vim.api.nvim_buf_get_name(bufnr)
         if string.sub(buf_name, 1, 7) == "term://" then
-          print("go attach")
           table.insert(result, attach(buf_name))
         end
       end

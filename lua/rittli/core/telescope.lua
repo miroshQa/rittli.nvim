@@ -116,18 +116,15 @@ M.terminal_handlers_picker = function(opts, task_to_launch)
         }
       end,
     }),
-    -- previewer = previewers.new_buffer_previewer({
-    --   title = "My preview",
-    --   define_preview = function(self, entry, status)
-    --     local factor = 100
-    --     vim.print(self.state)
-    --     vim.print(vim.api.nvim_win_get_config(self.state.winid))
-    --     vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, {
-    --       string.rep("a", factor),
-    --       string.rep("b", factor),
-    --     })
-    --   end,
-    -- }),
+    previewer = previewers.new_buffer_previewer({
+      title = "TerminalPreview",
+      define_preview = function(self, entry, status)
+        local handler = entry.value
+        local text = handler.get_text()
+        vim.bo[self.state.bufnr].filetype = "bash"
+        vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, text)
+      end,
+    }),
     sorter = conf.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
       map({ "i", "n" }, "<Enter>", function()

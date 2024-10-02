@@ -21,13 +21,24 @@ local function CreateWeztermTerminalHandler(pane_id)
     end,
     get_name = function()
       return "Wezterm pane_id: " .. pane_id
+    end,
+    get_text = function()
+      local text = vim.system({"wezterm", "cli", "get-text", "--pane-id", pane_id }):wait().stdout
+      local lines = {}
+      if not text then
+        return lines
+      end
+      for s in string.gmatch(text, "[^\r\n]+") do
+        table.insert(lines, s)
+      end
+      return lines
     end
   }
   return handler
 end
 
 
-function CreateTmuxTerminalProvider(create_function)
+function CreateWeztermTerminalProvider(create_function)
   ---@type ITerminalProvider
   local provider = {
     create = function(opts)
@@ -40,9 +51,11 @@ function CreateTmuxTerminalProvider(create_function)
       if not panes then
         return res
       end
+      local focused_pane_id = utils.rm_endline(os.getenv("WEZTERM_PANE"))
       for _, pane_info in ipairs(panes) do
-        if os.getenv("WEZTERM_PANE") ~= pane_info.pane_id then
-          table.insert(res, CreateWeztermTerminalHandler(pane_info.pane_id))
+        local pane_id = utils.rm_endline(pane_info.pane_id)
+        if focused_pane_id ~= pane_id then
+          table.insert(res, CreateWeztermTerminalHandler(pane_id))
         end
       end
       return res
@@ -58,7 +71,7 @@ function M.CreateTabProvider()
     local pane_id = utils.rm_endline(obj.stdout)
     return CreateWeztermTerminalHandler(pane_id)
   end
-  return CreateTmuxTerminalProvider(create_function)
+  return CreateWeztermTerminalProvider(create_function)
 end
 
 ---@param split_direction string? Specify split direction. Default is 'bottom'. Possible values: 'left', 'right', 'top'
@@ -74,7 +87,7 @@ function M.CreateSplitProvider(split_direction, percent)
     return CreateWeztermTerminalHandler(pane_id)
   end
 
-  return CreateTmuxTerminalProvider(create_function)
+  return CreateWeztermTerminalProvider(create_function)
 end
 
 function M.CreateMasterLayoutProvider()
@@ -95,7 +108,7 @@ function M.CreateMasterLayoutProvider()
     return CreateWeztermTerminalHandler(pane_id)
   end
 
-  return CreateTmuxTerminalProvider(create_function)
+  return CreateWeztermTerminalProvider(create_function)
 end
 
 function Local.get_right_pane()

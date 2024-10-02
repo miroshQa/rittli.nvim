@@ -27,6 +27,9 @@ local function CreateNeovimTerminalHandler(chan_id, bufnr, create_win_for_buf)
     get_name = function()
       return vim.api.nvim_buf_get_name(bufnr)
     end,
+    get_text = function()
+      return vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    end
   }
 
   return handler

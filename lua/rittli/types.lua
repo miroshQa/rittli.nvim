@@ -9,6 +9,7 @@
 ---@field execute_command fun(cmd: string): nil
 ---@field get_info_to_reattach fun(): string It make sense to call this function only if is_alive return true
 ---@field get_name fun(): string
+---@field get_text fun(): string[] This function must return any text that will used in the telescope preivew
 
 ---@class TasksModule
 ---@field is_available fun(): boolean

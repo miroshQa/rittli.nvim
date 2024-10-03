@@ -15,7 +15,7 @@ Revolutionary and Intuitive Terminal Tasks Launcher with tight telescope integra
 - 🌟 Last tasks is rememberd for each directory
 - 🔥 Create tasks dynamically! (My favorite use: Write all buffers before launch)
 - 🧓 Cache the task if you want!
-- 👖Wezterm integration!
+- 👖Wezterm and tmux 🥗 integration!
 - 🤯 Launch a task in the already existing terminal!
 
 *You can see some features preview [here](/demo/gallery.md)*
@@ -175,13 +175,14 @@ That means two things:
 > [!NOTE]  
 > - The tasks even remain attached to the terminal after relaunching neovim! (This is especially useful if you run tasks in wezterm)
 
-### 9. Try wezterm terminal provider instead neovim builtin terminal 👖
+### 9. Try another terminal provider instead neovim builtin terminal 👖
 1. By default, tasks are started in a new tab in the neovim terminal. You can change this
 ```lua
   --- With this setting a terminal for tasks will be spawned by wezterm in the vertical split
 config = function()
   require("rittli").setup({
-      terminal_provider = require('rittli.core.terminal_providers.wezterm').CreateMasterLayoutProvider()
+      terminal_provider = require('rittli.core.terminal_providers.wezterm').CreateMasterLayoutProvider(),
+      -- terminal_provider = require('rittli.core.terminal_providers.tmux').CreateSplitProvider()
     })
 end,
 ```
@@ -213,5 +214,9 @@ end
 
 
 ## 🌻 Project Roadmap
-- Tmux integration
 - Better documentation and lua-ls type annotations
+
+## Knowing issues 🚨
+- Tmux and Wezterm providers do not install env variables (just use 'export VARNAME="my value"' if you really need it)
+- The commands are duplicated when the terminal is started
+(It would really be really great if someone helped fix this and explain why this is happening)

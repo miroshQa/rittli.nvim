@@ -7,7 +7,7 @@ local M = {}
 ---@field terminal_provider ITerminalProvider
 M.config = {
   --- full path to global tasks dir = global_tasks_dir_path_tail + "/lua/" + folder_name_with_tasks
-  --- Default: stdpath("config"). Usually ~/.config/nvim on linux
+  --- Default: stdpath("config") + "/lua" . Usually ~/.config/nvim/lua on linux
   global_tasks_dir_path_tail = vim.fn.stdpath("config") .. "/lua",
   folder_name_with_tasks = "tasks",
   disable_resource_messages = false,

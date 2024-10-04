@@ -45,7 +45,7 @@ function M.toggle_last_openned_terminal()
 
   -- Case when the terminal is currently focused
   if last_enter_info.winid == vim.fn.win_getid() then
-    vim.api.nvim_command("hide")
+    vim.api.nvim_command("silent! hide")
     return
   end
 
@@ -97,6 +97,20 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
       register_terminal_enter()
     end
   end,
+})
+
+vim.api.nvim_create_autocmd("SessionLoadPost", {
+  group = vim.api.nvim_create_augroup("RegisterAllOpennedTerminalsIfSessionIsRestored", {clear = true}),
+  callback = function()
+    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+      local buf_name = vim.api.nvim_buf_get_name(bufnr)
+      if string.sub(buf_name, 1, 7) == "term://" then
+        vim.api.nvim_command("set ft=terminal")
+        vim.api.nvim_command("setlocal nonumber norelativenumber signcolumn=no")
+        register_terminal_enter()
+      end
+    end
+  end
 })
 
 return M
